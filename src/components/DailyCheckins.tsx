@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 interface CheckinItem {
   id: string
@@ -14,6 +14,15 @@ export default function DailyCheckins() {
     { id: '2', pillar: 'body', task: '30 minutes of exercise', completed: false },
     { id: '3', pillar: 'soul', task: 'Write 3 gratitudes', completed: false },
   ])
+
+  useEffect(() => {
+    const saved = localStorage.getItem('dailyCheckins')
+    if (saved) setCheckins(JSON.parse(saved))
+  }, [])
+
+  useEffect(() => {
+    localStorage.setItem('dailyCheckins', JSON.stringify(checkins))
+  }, [checkins])
 
   const toggleCheckin = (id: string) => {
     setCheckins(checkins.map(item => 
