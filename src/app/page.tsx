@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import DailyCheckins from '@/components/DailyCheckins'
 
 export default function Home() {
   const [selectedPillar, setSelectedPillar] = useState<string | null>(null)
@@ -35,11 +36,7 @@ export default function Home() {
         </button>
       </div>
 
-      {selectedPillar && (
-        <div className="mt-8 text-center">
-          <p className="text-lg">You selected: {selectedPillar}</p>
-        </div>
-      )}
+      <DailyCheckins />
     </main>
   )
 }
