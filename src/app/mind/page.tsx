@@ -14,9 +14,8 @@ export default function MindPage() {
       <header className="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-white/20">
         <div className="px-4 py-3 overflow-visible">
           <div className="flex items-center justify-between overflow-visible">
-            <Link href="/" className="flex items-center space-x-3 overflow-visible pl-2">
-              <span className="text-xl font-light bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent italic whitespace-nowrap">TotalGlow</span>
-              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">AI</span>
+            <Link href="/" className="text-xl font-bold bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent italic">
+              TotalGlow.AI
             </Link>
             <button 
               onClick={() => setShowAICoach(true)}
