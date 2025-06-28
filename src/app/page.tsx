@@ -13,6 +13,7 @@ import {
 import AICoach from '@/components/AICoach'
 
 export default function Home() {
+  // Standardized default scores for consistent demo experience
   const [scores, setScores] = useState({ mind: 78, body: 85, soul: 72 })
   const [overallScore, setOverallScore] = useState(0)
   const [showAICoach, setShowAICoach] = useState(false)
@@ -21,51 +22,50 @@ export default function Home() {
   const [mounted, setMounted] = useState(false)
   const [insightsReady, setInsightsReady] = useState(false)
   
-  // Wellness state for interconnectivity tracking
-  const [wellnessState, setWellnessState] = useState<WellnessState>({
-    mind: 78,
-    body: 85,
-    soul: 72,
-    lastUpdated: new Date(),
-    recentActivities: [],
-    trends: {
-      mind: [75, 76, 78], // Historical data - last 3 days
-      body: [82, 84, 85],
-      soul: [70, 71, 72]
-    }
-  })
+  // Wellness state for interconnectivity tracking - Initialize without Date
+  const [wellnessState, setWellnessState] = useState<WellnessState | null>(null)
 
   useEffect(() => {
     setMounted(true)
-    // Small delay to ensure everything is hydrated
-    setTimeout(() => setInsightsReady(true), 100)
-  }, [])
-
-  useEffect(() => {
-  const saved = localStorage.getItem('wellnessScores')
-  console.log('📱 Local environment check:')
-  console.log('- localStorage data:', saved)
-  console.log('- Current scores:', scores)
-  
-  if (saved) {
-    const savedScores = JSON.parse(saved)
-    setScores(savedScores)
     
-    // Update wellness state with saved scores
-    const newWellnessState = {
-      ...wellnessState,
-      mind: savedScores.mind,
-      body: savedScores.body,
-      soul: savedScores.soul,
-      lastUpdated: new Date()
+    // Initialize wellness state only on client
+    const initialWellnessState = {
+      mind: 78,
+      body: 85,
+      soul: 72,
+      lastUpdated: new Date(),
+      recentActivities: [],
+      trends: {
+        mind: [75, 76, 78],
+        body: [82, 84, 85],
+        soul: [70, 71, 72]
+      }
     }
     
-    console.log('🔄 Updated wellness state:', newWellnessState)
-    setWellnessState(newWellnessState)
-  } else {
-    console.log('🔄 Using default wellness state:', wellnessState)
-  }
-}, [])
+    setWellnessState(initialWellnessState)
+    
+    // Check for saved scores and update if needed
+    const saved = localStorage.getItem('wellnessScores')
+    if (saved) {
+      const savedScores = JSON.parse(saved)
+      setScores(savedScores)
+      
+      // Update wellness state with saved scores
+      setWellnessState({
+        ...initialWellnessState,
+        mind: savedScores.mind,
+        body: savedScores.body,
+        soul: savedScores.soul,
+        lastUpdated: new Date()
+      })
+    }
+    
+    // Small delay to ensure everything is hydrated
+    setTimeout(() => setInsightsReady(true), 200)
+  }, [])
+
+  // Remove the problematic useEffect that was causing infinite loops
+  // localStorage handling is now done in the first useEffect
 
   useEffect(() => {
     localStorage.setItem('wellnessScores', JSON.stringify(scores))
@@ -74,6 +74,8 @@ export default function Home() {
 
   // Function to simulate pillar activities and their interconnected effects
   const simulateActivity = (activity: string, pillar: 'mind' | 'body' | 'soul') => {
+    if (!wellnessState) return
+    
     const impacts = calculatePillarImpacts(wellnessState, activity, pillar)
     const newState = applyPillarImpacts(wellnessState, impacts)
     
@@ -86,9 +88,6 @@ export default function Home() {
       body: newState.body,
       soul: newState.soul
     })
-    
-    // Log impacts for debugging (remove in production)
-    console.log('Activity:', activity, 'Impacts:', impacts)
   }
 
   return (
@@ -192,8 +191,8 @@ export default function Home() {
           </Link>
         </div>
 
-        {/* Cross-Pillar Insights - The Key Differentiator */}
-        {mounted && insightsReady && (
+        {/* Cross-Pillar Insights - The Key Differentiator - Cleaner with max 2 insights */}
+        {mounted && insightsReady && wellnessState && (
           <div className="mb-8">
             <CrossPillarInsights wellnessState={wellnessState} />
           </div>
