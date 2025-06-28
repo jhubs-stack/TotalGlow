@@ -2,19 +2,56 @@
 import { useState, useEffect } from 'react'
 import DailyCheckins from '@/components/DailyCheckins'
 import ProgressRing from '@/components/ProgressRing'
+import CrossPillarInsights from '@/components/CrossPillarInsights'
 import Link from 'next/link'
 import { calculateWellnessScore, getScoreMessage } from '@/utils/wellness'
+import { 
+  calculatePillarImpacts, 
+  applyPillarImpacts,
+  WellnessState 
+} from '@/utils/pillarConnections'
 import AICoach from '@/components/AICoach'
 
 export default function Home() {
   const [scores, setScores] = useState({ mind: 78, body: 85, soul: 72 })
   const [overallScore, setOverallScore] = useState(0)
   const [showAICoach, setShowAICoach] = useState(false)
+  
+  // Client-side mounted state for hydration fix
+  const [mounted, setMounted] = useState(false)
+  
+  // Wellness state for interconnectivity tracking
+  const [wellnessState, setWellnessState] = useState<WellnessState>({
+    mind: 78,
+    body: 85,
+    soul: 72,
+    lastUpdated: new Date(),
+    recentActivities: [],
+    trends: {
+      mind: [75, 76, 78], // Historical data - last 3 days
+      body: [82, 84, 85],
+      soul: [70, 71, 72]
+    }
+  })
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     const saved = localStorage.getItem('wellnessScores')
     if (saved) {
-      setScores(JSON.parse(saved))
+      const savedScores = JSON.parse(saved)
+      setScores(savedScores)
+      
+      // Update wellness state with saved scores
+      setWellnessState(prev => ({
+        ...prev,
+        mind: savedScores.mind,
+        body: savedScores.body,
+        soul: savedScores.soul,
+        lastUpdated: new Date()
+      }))
     }
   }, [])
 
@@ -22,6 +59,25 @@ export default function Home() {
     localStorage.setItem('wellnessScores', JSON.stringify(scores))
     setOverallScore(calculateWellnessScore(scores.mind, scores.body, scores.soul))
   }, [scores])
+
+  // Function to simulate pillar activities and their interconnected effects
+  const simulateActivity = (activity: string, pillar: 'mind' | 'body' | 'soul') => {
+    const impacts = calculatePillarImpacts(wellnessState, activity, pillar)
+    const newState = applyPillarImpacts(wellnessState, impacts)
+    
+    // Update wellness state
+    setWellnessState(newState)
+    
+    // Update individual scores for UI
+    setScores({
+      mind: newState.mind,
+      body: newState.body,
+      soul: newState.soul
+    })
+    
+    // Log impacts for debugging (remove in production)
+    console.log('Activity:', activity, 'Impacts:', impacts)
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
@@ -123,6 +179,43 @@ export default function Home() {
             </div>
           </Link>
         </div>
+
+        {/* Cross-Pillar Insights - The Key Differentiator */}
+        {mounted && (
+          <div className="mb-8">
+            <CrossPillarInsights wellnessState={wellnessState} />
+          </div>
+        )}
+
+        {/* Test Pillar Connections - Demo Buttons */}
+        {mounted && (
+          <div className="mb-6 bg-white/50 backdrop-blur-sm rounded-xl p-4 border border-white/50">
+            <h3 className="text-sm font-medium text-gray-600 mb-3">Experience Pillar Connections:</h3>
+            <div className="grid grid-cols-1 gap-2">
+              <button 
+                onClick={() => simulateActivity('meditation_completed', 'mind')}
+                className="bg-purple-100 text-purple-700 px-4 py-2 rounded-lg text-sm font-medium active:scale-95 transition-all flex items-center justify-between"
+              >
+                <span>🧘‍♀️ Complete Meditation</span>
+                <span className="text-xs">Mind → Body + Soul</span>
+              </button>
+              <button 
+                onClick={() => simulateActivity('workout_completed', 'body')}
+                className="bg-green-100 text-green-700 px-4 py-2 rounded-lg text-sm font-medium active:scale-95 transition-all flex items-center justify-between"
+              >
+                <span>💪 Finish Workout</span>
+                <span className="text-xs">Body → Mind + Soul</span>
+              </button>
+              <button 
+                onClick={() => simulateActivity('gratitude_practice', 'soul')}
+                className="bg-amber-100 text-amber-700 px-4 py-2 rounded-lg text-sm font-medium active:scale-95 transition-all flex items-center justify-between"
+              >
+                <span>🙏 Gratitude Practice</span>
+                <span className="text-xs">Soul → Mind</span>
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Current Streak Card */}
         <div className="bg-gradient-to-br from-orange-500 to-pink-500 rounded-xl p-6 text-white mb-6 shadow-lg">

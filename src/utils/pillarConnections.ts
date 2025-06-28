@@ -1,0 +1,357 @@
+// src/utils/pillarConnections.ts
+export interface PillarImpact {
+  source: 'mind' | 'body' | 'soul'
+  target: 'mind' | 'body' | 'soul'
+  impact: number // -10 to +10
+  reason: string
+  actionTaken: string
+  timestamp: Date
+}
+
+export interface CrossPillarInsight {
+  id: string
+  type: 'boost' | 'warning' | 'opportunity' | 'achievement'
+  title: string
+  message: string
+  pillarsAffected: ('mind' | 'body' | 'soul')[]
+  confidenceScore: number
+  actionable: boolean
+  suggestedAction?: string
+  icon: string
+}
+
+export interface WellnessState {
+  mind: number
+  body: number
+  soul: number
+  lastUpdated: Date
+  recentActivities: string[]
+  trends: {
+    mind: number[]
+    body: number[]
+    soul: number[]
+  }
+}
+
+// Core interconnectivity calculation
+export const calculatePillarImpacts = (
+  currentState: WellnessState,
+  newActivity: string,
+  activityPillar: 'mind' | 'body' | 'soul'
+): PillarImpact[] => {
+  const impacts: PillarImpact[] = []
+  const now = new Date()
+
+  // Mind-based activities affecting other pillars
+  if (activityPillar === 'mind') {
+    if (newActivity.includes('meditation') || newActivity.includes('mindfulness')) {
+      impacts.push({
+        source: 'mind',
+        target: 'body',
+        impact: +3,
+        reason: 'Meditation reduces cortisol, improving physical recovery',
+        actionTaken: newActivity,
+        timestamp: now
+      })
+      impacts.push({
+        source: 'mind',
+        target: 'soul',
+        impact: +2,
+        reason: 'Mindfulness practice deepens spiritual awareness',
+        actionTaken: newActivity,
+        timestamp: now
+      })
+    }
+    
+    if (newActivity.includes('stress_relief') || newActivity.includes('breathing')) {
+      impacts.push({
+        source: 'mind',
+        target: 'body',
+        impact: +4,
+        reason: 'Stress reduction improves sleep quality and energy',
+        actionTaken: newActivity,
+        timestamp: now
+      })
+    }
+  }
+
+  // Body-based activities affecting other pillars
+  if (activityPillar === 'body') {
+    if (newActivity.includes('workout') || newActivity.includes('exercise')) {
+      impacts.push({
+        source: 'body',
+        target: 'mind',
+        impact: +5,
+        reason: 'Exercise releases endorphins, boosting mood and focus',
+        actionTaken: newActivity,
+        timestamp: now
+      })
+      impacts.push({
+        source: 'body',
+        target: 'soul',
+        impact: +1,
+        reason: 'Physical achievement builds inner confidence',
+        actionTaken: newActivity,
+        timestamp: now
+      })
+    }
+
+    if (newActivity.includes('yoga') || newActivity.includes('stretching')) {
+      impacts.push({
+        source: 'body',
+        target: 'mind',
+        impact: +3,
+        reason: 'Yoga combines movement with mindfulness',
+        actionTaken: newActivity,
+        timestamp: now
+      })
+      impacts.push({
+        source: 'body',
+        target: 'soul',
+        impact: +4,
+        reason: 'Yoga connects body awareness with spiritual practice',
+        actionTaken: newActivity,
+        timestamp: now
+      })
+    }
+
+    if (newActivity.includes('nutrition') || newActivity.includes('healthy_meal')) {
+      impacts.push({
+        source: 'body',
+        target: 'mind',
+        impact: +2,
+        reason: 'Good nutrition improves cognitive function',
+        actionTaken: newActivity,
+        timestamp: now
+      })
+    }
+  }
+
+  // Soul-based activities affecting other pillars
+  if (activityPillar === 'soul') {
+    if (newActivity.includes('gratitude') || newActivity.includes('reflection')) {
+      impacts.push({
+        source: 'soul',
+        target: 'mind',
+        impact: +3,
+        reason: 'Gratitude practice reduces anxiety and increases optimism',
+        actionTaken: newActivity,
+        timestamp: now
+      })
+    }
+
+    if (newActivity.includes('nature') || newActivity.includes('outdoors')) {
+      impacts.push({
+        source: 'soul',
+        target: 'mind',
+        impact: +2,
+        reason: 'Nature connection reduces mental fatigue',
+        actionTaken: newActivity,
+        timestamp: now
+      })
+      impacts.push({
+        source: 'soul',
+        target: 'body',
+        impact: +1,
+        reason: 'Time in nature encourages physical activity',
+        actionTaken: newActivity,
+        timestamp: now
+      })
+    }
+
+    if (newActivity.includes('compassion') || newActivity.includes('kindness')) {
+      impacts.push({
+        source: 'soul',
+        target: 'mind',
+        impact: +4,
+        reason: 'Acts of kindness trigger positive neurochemical changes',
+        actionTaken: newActivity,
+        timestamp: now
+      })
+    }
+  }
+
+  return impacts
+}
+
+// Generate intelligent cross-pillar insights
+export const generateCrossPillarInsights = (
+  wellnessState: WellnessState
+): CrossPillarInsight[] => {
+  const insights: CrossPillarInsight[] = []
+  const { mind, body, soul } = wellnessState
+
+  // Calculate pillar balance
+  const scores = [mind, body, soul]
+  const average = scores.reduce((a, b) => a + b, 0) / 3
+  const maxScore = Math.max(...scores)
+  const minScore = Math.min(...scores)
+  const imbalance = maxScore - minScore
+
+  // Identify dominant and weak pillars
+  const dominantPillar = mind >= body && mind >= soul ? 'mind' : 
+                        body >= soul ? 'body' : 'soul'
+  const weakestPillar = mind <= body && mind <= soul ? 'mind' :
+                       body <= soul ? 'body' : 'soul'
+
+  // Generate insights based on patterns
+  
+  // 1. Balance Opportunity
+  if (imbalance > 20) {
+    insights.push({
+      id: 'balance_opportunity',
+      type: 'opportunity',
+      title: 'Balance Opportunity',
+      message: `Your ${dominantPillar} pillar (${scores[dominantPillar === 'mind' ? 0 : dominantPillar === 'body' ? 1 : 2]}) is much stronger than your ${weakestPillar} pillar (${scores[weakestPillar === 'mind' ? 0 : weakestPillar === 'body' ? 1 : 2]}). Use this strength to boost your weaker area!`,
+      pillarsAffected: [dominantPillar, weakestPillar] as ('mind' | 'body' | 'soul')[],
+      confidenceScore: 0.85,
+      actionable: true,
+      suggestedAction: getBalanceAction(dominantPillar, weakestPillar),
+      icon: '⚖️'
+    })
+  }
+
+  // 2. Synergy Boost Opportunities
+  if (body > 80 && mind < 70) {
+    insights.push({
+      id: 'body_mind_synergy',
+      type: 'boost',
+      title: 'Fitness → Mental Clarity',
+      message: 'Your fitness momentum is amazing! Add 10 minutes of post-workout meditation to supercharge your mental clarity.',
+      pillarsAffected: ['body', 'mind'],
+      confidenceScore: 0.78,
+      actionable: true,
+      suggestedAction: 'Try meditation after your next workout',
+      icon: '🧘‍♂️'
+    })
+  }
+
+  if (mind > 80 && soul < 65) {
+    insights.push({
+      id: 'mind_soul_connection',
+      type: 'boost',
+      title: 'Mental Focus → Inner Peace',
+      message: 'Your mental discipline is excellent! Channel this focus into gratitude practice for deeper spiritual fulfillment.',
+      pillarsAffected: ['mind', 'soul'],
+      confidenceScore: 0.72,
+      actionable: true,
+      suggestedAction: 'Start a 5-minute daily gratitude journal',
+      icon: '🙏'
+    })
+  }
+
+  if (soul > 80 && body < 70) {
+    insights.push({
+      id: 'soul_body_energy',
+      type: 'boost', 
+      title: 'Inner Peace → Physical Energy',
+      message: 'Your spiritual practice is strong! Use this inner calm to establish a gentle movement routine.',
+      pillarsAffected: ['soul', 'body'],
+      confidenceScore: 0.75,
+      actionable: true,
+      suggestedAction: 'Try yoga or nature walks',
+      icon: '🌱'
+    })
+  }
+
+  // 3. Warning Signs
+  if (mind < 50 && body < 50) {
+    insights.push({
+      id: 'stress_warning',
+      type: 'warning',
+      title: 'Stress Pattern Detected',
+      message: 'Both your mental and physical scores are low. This suggests high stress levels affecting multiple areas.',
+      pillarsAffected: ['mind', 'body'],
+      confidenceScore: 0.88,
+      actionable: true,
+      suggestedAction: 'Try gentle breathing exercises or a short walk',
+      icon: '⚠️'
+    })
+  }
+
+  // 4. Achievement Recognition
+  if (Math.min(mind, body, soul) > 75) {
+    insights.push({
+      id: 'balanced_achievement',
+      type: 'achievement',
+      title: 'Balanced Wellness Achieved!',
+      message: 'Incredible! All three pillars are strong. You\'re experiencing true holistic wellness.',
+      pillarsAffected: ['mind', 'body', 'soul'],
+      confidenceScore: 0.95,
+      actionable: false,
+      icon: '🌟'
+    })
+  }
+
+  // 5. Trend-based insights
+  const recentTrends = calculateRecentTrends(wellnessState.trends)
+  if (recentTrends.improving.length >= 2) {
+    insights.push({
+      id: 'momentum_building',
+      type: 'boost',
+      title: 'Momentum Building',
+      message: `Your ${recentTrends.improving.join(' and ')} pillars are on an upward trend! Keep this momentum going.`,
+      pillarsAffected: recentTrends.improving as ('mind' | 'body' | 'soul')[],
+      confidenceScore: 0.82,
+      actionable: true,
+      suggestedAction: 'Maintain your current practices',
+      icon: '📈'
+    })
+  }
+
+  return insights
+}
+
+// Helper function to suggest balance actions
+const getBalanceAction = (strong: string, weak: string): string => {
+  const actions: { [key: string]: string } = {
+    'mind_body': 'Use your mental focus to establish a consistent exercise routine',
+    'mind_soul': 'Apply your concentration skills to meditation or gratitude practice',
+    'body_mind': 'Add mindfulness to your workouts - try yoga or mindful running',
+    'body_soul': 'Connect with nature during your physical activities',
+    'soul_mind': 'Use your spiritual insights to develop mental clarity practices',
+    'soul_body': 'Honor your body as a temple through gentle, mindful movement'
+  }
+  
+  return actions[`${strong}_${weak}`] || 'Focus on bringing balance to all three pillars'
+}
+
+// Calculate recent trends
+const calculateRecentTrends = (trends: { mind: number[], body: number[], soul: number[] }) => {
+  const improving: string[] = []
+  const declining: string[] = []
+  
+  Object.entries(trends).forEach(([pillar, scores]) => {
+    if (scores.length >= 3) {
+      const recent = scores.slice(-3)
+      const trend = recent[2] - recent[0]
+      if (trend > 2) improving.push(pillar)
+      if (trend < -2) declining.push(pillar)
+    }
+  })
+  
+  return { improving, declining }
+}
+
+// Apply impacts to wellness state
+export const applyPillarImpacts = (
+  currentState: WellnessState, 
+  impacts: PillarImpact[]
+): WellnessState => {
+  const newState = { ...currentState }
+  
+  impacts.forEach(impact => {
+    const currentScore = newState[impact.target]
+    const newScore = Math.max(0, Math.min(100, currentScore + impact.impact))
+    newState[impact.target] = newScore
+    
+    // Update trends
+    newState.trends[impact.target].push(newScore)
+    if (newState.trends[impact.target].length > 14) {
+      newState.trends[impact.target] = newState.trends[impact.target].slice(-14)
+    }
+  })
+  
+  newState.lastUpdated = new Date()
+  return newState
+}

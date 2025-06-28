@@ -1,0 +1,150 @@
+// public/manifest.json
+{
+  "name": "TotalGlow - Complete Wellness",
+  "short_name": "TotalGlow",
+  "description": "Unite your Mind, Body & Soul in one powerful wellness platform",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#8b5cf6",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512x512.png", 
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["health", "lifestyle", "wellness"],
+  "screenshots": [
+    {
+      "src": "/screenshot-mobile.png",
+      "sizes": "640x1136",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ]
+}
+
+// Add to app/layout.tsx head section:
+<link rel="manifest" href="/manifest.json" />
+<meta name="theme-color" content="#8b5cf6" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="TotalGlow" />
+
+// Enhanced Progress Ring with Animation
+// src/components/AnimatedProgressRing.tsx
+'use client'
+import { useEffect, useState } from 'react'
+
+interface AnimatedProgressRingProps {
+  progress: number
+  color: string
+  size?: number
+  duration?: number
+}
+
+export default function AnimatedProgressRing({ 
+  progress, 
+  color, 
+  size = 120,
+  duration = 1500 
+}: AnimatedProgressRingProps) {
+  const [animatedProgress, setAnimatedProgress] = useState(0)
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setAnimatedProgress(progress)
+    }, 100)
+    
+    return () => clearTimeout(timer)
+  }, [progress])
+
+  const circumference = 2 * Math.PI * 45
+  const strokeDasharray = circumference
+  const strokeDashoffset = circumference - (animatedProgress / 100) * circumference
+
+  return (
+    <div className="relative inline-flex items-center justify-center">
+      <svg 
+        width={size} 
+        height={size} 
+        className="transform -rotate-90"
+      >
+        {/* Background circle */}
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={45}
+          stroke="rgba(156, 163, 175, 0.2)"
+          strokeWidth="8"
+          fill="transparent"
+        />
+        
+        {/* Progress circle with animation */}
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={45}
+          stroke={color}
+          strokeWidth="8"
+          fill="transparent"
+          strokeDasharray={strokeDasharray}
+          strokeDashoffset={strokeDashoffset}
+          strokeLinecap="round"
+          className="transition-all duration-1500 ease-out"
+          style={{
+            filter: 'drop-shadow(0 0 6px rgba(139, 92, 246, 0.3))'
+          }}
+        />
+      </svg>
+      
+      {/* Animated number counter */}
+      <div className="absolute text-center">
+        <AnimatedNumber 
+          value={animatedProgress} 
+          duration={duration}
+          className="text-2xl font-bold text-gray-800"
+        />
+      </div>
+    </div>
+  )
+}
+
+// Animated Number Component
+function AnimatedNumber({ value, duration, className }: {
+  value: number
+  duration: number
+  className: string
+}) {
+  const [displayValue, setDisplayValue] = useState(0)
+  
+  useEffect(() => {
+    let startTime: number
+    let animationFrame: number
+    
+    const animate = (timestamp: number) => {
+      if (!startTime) startTime = timestamp
+      const progress = (timestamp - startTime) / duration
+      
+      if (progress < 1) {
+        setDisplayValue(Math.floor(value * progress))
+        animationFrame = requestAnimationFrame(animate)
+      } else {
+        setDisplayValue(value)
+      }
+    }
+    
+    animationFrame = requestAnimationFrame(animate)
+    return () => cancelAnimationFrame(animationFrame)
+  }, [value, duration])
+  
+  return <div className={className}>{displayValue}</div>
+}
