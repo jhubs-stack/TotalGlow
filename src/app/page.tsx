@@ -19,6 +19,7 @@ export default function Home() {
   
   // Client-side mounted state for hydration fix
   const [mounted, setMounted] = useState(false)
+  const [insightsReady, setInsightsReady] = useState(false)
   
   // Wellness state for interconnectivity tracking
   const [wellnessState, setWellnessState] = useState<WellnessState>({
@@ -36,6 +37,8 @@ export default function Home() {
 
   useEffect(() => {
     setMounted(true)
+    // Small delay to ensure everything is hydrated
+    setTimeout(() => setInsightsReady(true), 100)
   }, [])
 
   useEffect(() => {
@@ -181,7 +184,7 @@ export default function Home() {
         </div>
 
         {/* Cross-Pillar Insights - The Key Differentiator */}
-        {mounted && (
+        {mounted && insightsReady && (
           <div className="mb-8">
             <CrossPillarInsights wellnessState={wellnessState} />
           </div>

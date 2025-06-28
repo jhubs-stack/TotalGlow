@@ -11,13 +11,51 @@ interface CrossPillarInsightsProps {
 export default function CrossPillarInsights({ wellnessState, isMinimized = false }: CrossPillarInsightsProps) {
   const [insights, setInsights] = useState<CrossPillarInsight[]>([])
   const [selectedInsight, setSelectedInsight] = useState<CrossPillarInsight | null>(null)
+  const [isClient, setIsClient] = useState(false)
+
+  // Ensure this only runs on client
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
   useEffect(() => {
-    const generatedInsights = generateCrossPillarInsights(wellnessState)
-    setInsights(generatedInsights)
-  }, [wellnessState])
+    if (!isClient) return
+    
+    // Add small delay to ensure consistent generation
+    const timer = setTimeout(() => {
+      const generatedInsights = generateCrossPillarInsights(wellnessState)
+      setInsights(generatedInsights)
+    }, 50)
+    
+    return () => clearTimeout(timer)
+  }, [wellnessState, isClient])
 
-  if (insights.length === 0) return null
+  // Don't render anything until client-side
+  if (!isClient) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-gray-800">Pillar Connections</h3>
+          <div className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+            Loading...
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (insights.length === 0) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-gray-800">Pillar Connections</h3>
+          <div className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+            Analyzing...
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   if (isMinimized) {
     return (
@@ -40,7 +78,7 @@ export default function CrossPillarInsights({ wellnessState, isMinimized = false
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-gray-800">Pillar Connections</h3>
         <div className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-          AI Insights
+          {insights.length} AI Insights
         </div>
       </div>
       
