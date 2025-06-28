@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import DailyCheckins from '@/components/DailyCheckins'
 import ProgressRing from '@/components/ProgressRing'
 import CrossPillarInsights from '@/components/CrossPillarInsights'
+import VoiceCheckin from '@/components/VoiceCheckin'
 import Link from 'next/link'
 import { calculateWellnessScore, getScoreMessage } from '@/utils/wellness'
 import { 
@@ -10,6 +11,7 @@ import {
   applyPillarImpacts,
   WellnessState 
 } from '@/utils/pillarConnections'
+import { VoiceAnalysis } from '@/utils/aiPredictions'
 import AICoach from '@/components/AICoach'
 
 export default function Home() {
@@ -64,9 +66,6 @@ export default function Home() {
     setTimeout(() => setInsightsReady(true), 200)
   }, [])
 
-  // Remove the problematic useEffect that was causing infinite loops
-  // localStorage handling is now done in the first useEffect
-
   useEffect(() => {
     localStorage.setItem('wellnessScores', JSON.stringify(scores))
     setOverallScore(calculateWellnessScore(scores.mind, scores.body, scores.soul))
@@ -88,6 +87,35 @@ export default function Home() {
       body: newState.body,
       soul: newState.soul
     })
+  }
+
+  // NEW: Handle voice check-in results
+  const handleVoiceCheckin = (analysis: VoiceAnalysis) => {
+    if (!wellnessState) return
+
+    // Apply voice analysis to pillar scores
+    const newScores = {
+      mind: Math.max(0, Math.min(100, scores.mind + analysis.pillarUpdates.mind)),
+      body: Math.max(0, Math.min(100, scores.body + analysis.pillarUpdates.body)),
+      soul: Math.max(0, Math.min(100, scores.soul + analysis.pillarUpdates.soul))
+    }
+
+    // Update scores
+    setScores(newScores)
+
+    // Update wellness state
+    const newState = {
+      ...wellnessState,
+      mind: newScores.mind,
+      body: newScores.body,
+      soul: newScores.soul,
+      lastUpdated: new Date(),
+      recentActivities: [...wellnessState.recentActivities, `voice_checkin_${analysis.mood}`]
+    }
+    setWellnessState(newState)
+
+    // Show a brief success message (optional)
+    console.log('Voice analysis complete:', analysis)
   }
 
   return (
@@ -113,10 +141,17 @@ export default function Home() {
       {/* Main Content */}
       <main className="px-4 py-6 pb-24">
         {/* Welcome Section */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-6">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">Welcome back!</h1>
           <p className="text-lg text-gray-600">Your wellness journey continues ✨</p>
         </div>
+
+        {/* NEW: Voice Check-in - Prominent placement */}
+        {mounted && (
+          <div className="mb-8">
+            <VoiceCheckin onComplete={handleVoiceCheckin} isMinimized={true} />
+          </div>
+        )}
 
         {/* Overall Score Card */}
         <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 mb-8 shadow-lg border border-white/50">
@@ -134,10 +169,10 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Three Pillars Grid */}
+        {/* Three Pillars Grid - Enhanced with connection indicators */}
         <div className="space-y-4 mb-8">
           <Link href="/mind" className="block group active:scale-98 transition-transform">
-            <div className="bg-white/70 backdrop-blur-sm rounded-xl p-4 shadow-md border border-white/50 group-active:bg-white/80">
+            <div className="bg-white/70 backdrop-blur-sm rounded-xl p-4 shadow-md border border-white/50 group-active:bg-white/80 relative">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <span className="text-2xl">🧠</span>
@@ -151,11 +186,13 @@ export default function Home() {
                   <span className="text-gray-400">→</span>
                 </div>
               </div>
+              {/* Connection indicator */}
+              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-1 h-4 bg-gradient-to-b from-purple-300 to-transparent rounded-full opacity-50"></div>
             </div>
           </Link>
 
           <Link href="/body" className="block group active:scale-98 transition-transform">
-            <div className="bg-white/70 backdrop-blur-sm rounded-xl p-4 shadow-md border border-white/50 group-active:bg-white/80">
+            <div className="bg-white/70 backdrop-blur-sm rounded-xl p-4 shadow-md border border-white/50 group-active:bg-white/80 relative">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <span className="text-2xl">💪</span>
@@ -169,11 +206,14 @@ export default function Home() {
                   <span className="text-gray-400">→</span>
                 </div>
               </div>
+              {/* Connection indicators */}
+              <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-1 h-4 bg-gradient-to-t from-green-300 to-transparent rounded-full opacity-50"></div>
+              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-1 h-4 bg-gradient-to-b from-green-300 to-transparent rounded-full opacity-50"></div>
             </div>
           </Link>
 
           <Link href="/soul" className="block group active:scale-98 transition-transform">
-            <div className="bg-white/70 backdrop-blur-sm rounded-xl p-4 shadow-md border border-white/50 group-active:bg-white/80">
+            <div className="bg-white/70 backdrop-blur-sm rounded-xl p-4 shadow-md border border-white/50 group-active:bg-white/80 relative">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <span className="text-2xl">✨</span>
@@ -187,44 +227,51 @@ export default function Home() {
                   <span className="text-gray-400">→</span>
                 </div>
               </div>
+              {/* Connection indicator */}
+              <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-1 h-4 bg-gradient-to-t from-amber-300 to-transparent rounded-full opacity-50"></div>
             </div>
           </Link>
         </div>
 
-        {/* Cross-Pillar Insights - The Key Differentiator - Cleaner with max 2 insights */}
+        {/* Cross-Pillar Insights - Enhanced positioning */}
         {mounted && insightsReady && wellnessState && (
           <div className="mb-8">
             <CrossPillarInsights wellnessState={wellnessState} />
           </div>
         )}
 
-        {/* Test Pillar Connections - Demo Buttons */}
+        {/* Demo Buttons - Minimized for production feel */}
         {mounted && (
-          <div className="mb-6 bg-white/50 backdrop-blur-sm rounded-xl p-4 border border-white/50">
-            <h3 className="text-sm font-medium text-gray-600 mb-3">Experience Pillar Connections:</h3>
-            <div className="grid grid-cols-1 gap-2">
-              <button 
-                onClick={() => simulateActivity('meditation_completed', 'mind')}
-                className="bg-purple-100 text-purple-700 px-4 py-2 rounded-lg text-sm font-medium active:scale-95 transition-all flex items-center justify-between"
-              >
-                <span>🧘‍♀️ Complete Meditation</span>
-                <span className="text-xs">Mind → Body + Soul</span>
-              </button>
-              <button 
-                onClick={() => simulateActivity('workout_completed', 'body')}
-                className="bg-green-100 text-green-700 px-4 py-2 rounded-lg text-sm font-medium active:scale-95 transition-all flex items-center justify-between"
-              >
-                <span>💪 Finish Workout</span>
-                <span className="text-xs">Body → Mind + Soul</span>
-              </button>
-              <button 
-                onClick={() => simulateActivity('gratitude_practice', 'soul')}
-                className="bg-amber-100 text-amber-700 px-4 py-2 rounded-lg text-sm font-medium active:scale-95 transition-all flex items-center justify-between"
-              >
-                <span>🙏 Gratitude Practice</span>
-                <span className="text-xs">Soul → Mind</span>
-              </button>
-            </div>
+          <div className="mb-6 bg-white/30 backdrop-blur-sm rounded-xl p-3 border border-white/30">
+            <details className="group">
+              <summary className="text-sm font-medium text-gray-600 cursor-pointer flex items-center justify-between">
+                <span>🧪 Try Pillar Connections</span>
+                <span className="group-open:rotate-180 transition-transform">▼</span>
+              </summary>
+              <div className="mt-3 grid grid-cols-1 gap-2">
+                <button 
+                  onClick={() => simulateActivity('meditation_completed', 'mind')}
+                  className="bg-purple-100 text-purple-700 px-4 py-2 rounded-lg text-sm font-medium active:scale-95 transition-all flex items-center justify-between"
+                >
+                  <span>🧘‍♀️ Complete Meditation</span>
+                  <span className="text-xs">Mind → Body + Soul</span>
+                </button>
+                <button 
+                  onClick={() => simulateActivity('workout_completed', 'body')}
+                  className="bg-green-100 text-green-700 px-4 py-2 rounded-lg text-sm font-medium active:scale-95 transition-all flex items-center justify-between"
+                >
+                  <span>💪 Finish Workout</span>
+                  <span className="text-xs">Body → Mind + Soul</span>
+                </button>
+                <button 
+                  onClick={() => simulateActivity('gratitude_practice', 'soul')}
+                  className="bg-amber-100 text-amber-700 px-4 py-2 rounded-lg text-sm font-medium active:scale-95 transition-all flex items-center justify-between"
+                >
+                  <span>🙏 Gratitude Practice</span>
+                  <span className="text-xs">Soul → Mind</span>
+                </button>
+              </div>
+            </details>
           </div>
         )}
 
