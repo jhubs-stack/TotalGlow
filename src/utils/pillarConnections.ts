@@ -194,15 +194,15 @@ export const generateCrossPillarInsights = (
   const weakestPillar = mind <= body && mind <= soul ? 'mind' :
                        body <= soul ? 'body' : 'soul'
 
-  // Generate insights based on patterns
+  // Generate insights based on patterns - LOWERED THRESHOLDS FOR BETTER DEMO
   
-  // 1. Balance Opportunity
-  if (imbalance > 20) {
+  // 1. Balance Opportunity - Lowered from 20 to 10
+  if (imbalance > 10) {
     insights.push({
       id: 'balance_opportunity',
       type: 'opportunity',
       title: 'Balance Opportunity',
-      message: `Your ${dominantPillar} pillar (${scores[dominantPillar === 'mind' ? 0 : dominantPillar === 'body' ? 1 : 2]}) is much stronger than your ${weakestPillar} pillar (${scores[weakestPillar === 'mind' ? 0 : weakestPillar === 'body' ? 1 : 2]}). Use this strength to boost your weaker area!`,
+      message: `Your ${dominantPillar} pillar (${scores[dominantPillar === 'mind' ? 0 : dominantPillar === 'body' ? 1 : 2]}) is stronger than your ${weakestPillar} pillar (${scores[weakestPillar === 'mind' ? 0 : weakestPillar === 'body' ? 1 : 2]}). Use this strength to boost your weaker area!`,
       pillarsAffected: [dominantPillar, weakestPillar] as ('mind' | 'body' | 'soul')[],
       confidenceScore: 0.85,
       actionable: true,
@@ -211,13 +211,13 @@ export const generateCrossPillarInsights = (
     })
   }
 
-  // 2. Synergy Boost Opportunities
-  if (body > 80 && mind < 70) {
+  // 2. Synergy Boost Opportunities - LOWERED THRESHOLDS
+  if (body > 75 && mind < 80) { // Was: body > 80 && mind < 70
     insights.push({
       id: 'body_mind_synergy',
       type: 'boost',
       title: 'Fitness → Mental Clarity',
-      message: 'Your fitness momentum is amazing! Add 10 minutes of post-workout meditation to supercharge your mental clarity.',
+      message: 'Your fitness routine is solid! Add 10 minutes of post-workout meditation to supercharge your mental clarity.',
       pillarsAffected: ['body', 'mind'],
       confidenceScore: 0.78,
       actionable: true,
@@ -226,12 +226,12 @@ export const generateCrossPillarInsights = (
     })
   }
 
-  if (mind > 80 && soul < 65) {
+  if (mind > 75 && soul < 75) { // Was: mind > 80 && soul < 65
     insights.push({
       id: 'mind_soul_connection',
       type: 'boost',
       title: 'Mental Focus → Inner Peace',
-      message: 'Your mental discipline is excellent! Channel this focus into gratitude practice for deeper spiritual fulfillment.',
+      message: 'Your mental discipline is developing well! Channel this focus into gratitude practice for deeper spiritual fulfillment.',
       pillarsAffected: ['mind', 'soul'],
       confidenceScore: 0.72,
       actionable: true,
@@ -240,16 +240,16 @@ export const generateCrossPillarInsights = (
     })
   }
 
-  if (soul > 80 && body < 70) {
+  if (soul > 70 && body < 85) { // Was: soul > 80 && body < 70
     insights.push({
       id: 'soul_body_energy',
       type: 'boost', 
       title: 'Inner Peace → Physical Energy',
-      message: 'Your spiritual practice is strong! Use this inner calm to establish a gentle movement routine.',
+      message: 'Your spiritual awareness is growing! Use this inner calm to enhance your movement practice.',
       pillarsAffected: ['soul', 'body'],
       confidenceScore: 0.75,
       actionable: true,
-      suggestedAction: 'Try yoga or nature walks',
+      suggestedAction: 'Try yoga or mindful walking',
       icon: '🌱'
     })
   }
@@ -270,14 +270,14 @@ export const generateCrossPillarInsights = (
   }
 
   // 4. Achievement Recognition
-  if (Math.min(mind, body, soul) > 75) {
+  if (Math.min(mind, body, soul) > 70) { // Was: > 75
     insights.push({
       id: 'balanced_achievement',
       type: 'achievement',
-      title: 'Balanced Wellness Achieved!',
-      message: 'Incredible! All three pillars are strong. You\'re experiencing true holistic wellness.',
+      title: 'Well-Rounded Wellness!',
+      message: 'Great progress! All three pillars are in good shape. You\'re building balanced wellness.',
       pillarsAffected: ['mind', 'body', 'soul'],
-      confidenceScore: 0.95,
+      confidenceScore: 0.90,
       actionable: false,
       icon: '🌟'
     })
@@ -296,6 +296,21 @@ export const generateCrossPillarInsights = (
       actionable: true,
       suggestedAction: 'Maintain your current practices',
       icon: '📈'
+    })
+  }
+
+  // 6. ADD NEW INSIGHT for guaranteed multiple insights
+  if (average > 70) {
+    insights.push({
+      id: 'daily_momentum',
+      type: 'boost',
+      title: 'Daily Momentum',
+      message: `Your overall wellness (${Math.round(average)}) shows you're building healthy habits. Small daily actions create lasting change!`,
+      pillarsAffected: ['mind', 'body', 'soul'],
+      confidenceScore: 0.88,
+      actionable: true,
+      suggestedAction: 'Keep up your consistent daily practices',
+      icon: '🔥'
     })
   }
 
