@@ -12,9 +12,9 @@ export default function SoulPage() {
     <div className="min-h-screen bg-gradient-to-br from-amber-100 via-orange-100 to-yellow-100">
       {/* Mobile Header */}
       <header className="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-white/20">
-        <div className="px-4 py-3 overflow-visible">
+        <div className="px-8 py-3 overflow-visible">
           <div className="flex items-center justify-between overflow-visible">
-            <Link href="/" className="text-xl font-bold bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent italic">
+            <Link href="/" className="text-xl font-bold bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent italic overflow-visible whitespace-nowrap pr-2">
               TotalGlow.AI
             </Link>
             <button 
