@@ -181,6 +181,8 @@ export const generateCrossPillarInsights = (
   const insights: CrossPillarInsight[] = []
   const { mind, body, soul } = wellnessState
 
+  console.log('🔍 Generating insights for scores:', { mind, body, soul })
+
   // Calculate pillar balance
   const scores = [mind, body, soul]
   const average = scores.reduce((a, b) => a + b, 0) / 3
@@ -188,16 +190,19 @@ export const generateCrossPillarInsights = (
   const minScore = Math.min(...scores)
   const imbalance = maxScore - minScore
 
+  console.log('📊 Calculated values:', { average, maxScore, minScore, imbalance })
+
   // Identify dominant and weak pillars
   const dominantPillar = mind >= body && mind >= soul ? 'mind' : 
                         body >= soul ? 'body' : 'soul'
   const weakestPillar = mind <= body && mind <= soul ? 'mind' :
                        body <= soul ? 'body' : 'soul'
 
-  // Generate insights based on patterns - LOWERED THRESHOLDS FOR BETTER DEMO
-  
+  console.log('🎯 Pillars:', { dominantPillar, weakestPillar })
+
   // 1. Balance Opportunity - Lowered from 20 to 10
   if (imbalance > 10) {
+    console.log('✅ Adding balance opportunity insight')
     insights.push({
       id: 'balance_opportunity',
       type: 'opportunity',
@@ -209,10 +214,13 @@ export const generateCrossPillarInsights = (
       suggestedAction: getBalanceAction(dominantPillar, weakestPillar),
       icon: '⚖️'
     })
+  } else {
+    console.log('❌ Skipping balance opportunity: imbalance =', imbalance)
   }
 
-  // 2. Synergy Boost Opportunities - LOWERED THRESHOLDS
-  if (body > 75 && mind < 80) { // Was: body > 80 && mind < 70
+  // 2. Synergy Boost Opportunities
+  if (body > 75 && mind < 80) {
+    console.log('✅ Adding body-mind synergy insight')
     insights.push({
       id: 'body_mind_synergy',
       type: 'boost',
@@ -224,9 +232,12 @@ export const generateCrossPillarInsights = (
       suggestedAction: 'Try meditation after your next workout',
       icon: '🧘‍♂️'
     })
+  } else {
+    console.log('❌ Skipping body-mind synergy: body =', body, 'mind =', mind)
   }
 
-  if (mind > 75 && soul < 75) { // Was: mind > 80 && soul < 65
+  if (mind > 75 && soul < 75) {
+    console.log('✅ Adding mind-soul connection insight')
     insights.push({
       id: 'mind_soul_connection',
       type: 'boost',
@@ -238,9 +249,12 @@ export const generateCrossPillarInsights = (
       suggestedAction: 'Start a 5-minute daily gratitude journal',
       icon: '🙏'
     })
+  } else {
+    console.log('❌ Skipping mind-soul connection: mind =', mind, 'soul =', soul)
   }
 
-  if (soul > 70 && body < 85) { // Was: soul > 80 && body < 70
+  if (soul > 70 && body < 85) {
+    console.log('✅ Adding soul-body energy insight')
     insights.push({
       id: 'soul_body_energy',
       type: 'boost', 
@@ -252,10 +266,13 @@ export const generateCrossPillarInsights = (
       suggestedAction: 'Try yoga or mindful walking',
       icon: '🌱'
     })
+  } else {
+    console.log('❌ Skipping soul-body energy: soul =', soul, 'body =', body)
   }
 
   // 3. Warning Signs
   if (mind < 50 && body < 50) {
+    console.log('✅ Adding stress warning insight')
     insights.push({
       id: 'stress_warning',
       type: 'warning',
@@ -267,10 +284,13 @@ export const generateCrossPillarInsights = (
       suggestedAction: 'Try gentle breathing exercises or a short walk',
       icon: '⚠️'
     })
+  } else {
+    console.log('❌ Skipping stress warning: mind =', mind, 'body =', body)
   }
 
   // 4. Achievement Recognition
-  if (Math.min(mind, body, soul) > 70) { // Was: > 75
+  if (Math.min(mind, body, soul) > 70) {
+    console.log('✅ Adding balanced achievement insight')
     insights.push({
       id: 'balanced_achievement',
       type: 'achievement',
@@ -281,11 +301,16 @@ export const generateCrossPillarInsights = (
       actionable: false,
       icon: '🌟'
     })
+  } else {
+    console.log('❌ Skipping balanced achievement: min score =', Math.min(mind, body, soul))
   }
 
   // 5. Trend-based insights
   const recentTrends = calculateRecentTrends(wellnessState.trends)
+  console.log('📈 Recent trends:', recentTrends)
+  
   if (recentTrends.improving.length >= 2) {
+    console.log('✅ Adding momentum building insight')
     insights.push({
       id: 'momentum_building',
       type: 'boost',
@@ -297,10 +322,13 @@ export const generateCrossPillarInsights = (
       suggestedAction: 'Maintain your current practices',
       icon: '📈'
     })
+  } else {
+    console.log('❌ Skipping momentum building: improving pillars =', recentTrends.improving.length)
   }
 
-  // 6. ADD NEW INSIGHT for guaranteed multiple insights
+  // 6. Daily momentum insight
   if (average > 70) {
+    console.log('✅ Adding daily momentum insight')
     insights.push({
       id: 'daily_momentum',
       type: 'boost',
@@ -312,8 +340,11 @@ export const generateCrossPillarInsights = (
       suggestedAction: 'Keep up your consistent daily practices',
       icon: '🔥'
     })
+  } else {
+    console.log('❌ Skipping daily momentum: average =', average)
   }
 
+  console.log('🎯 Final insights generated:', insights.length, insights.map(i => i.id))
   return insights
 }
 

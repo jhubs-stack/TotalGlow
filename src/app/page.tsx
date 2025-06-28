@@ -42,21 +42,30 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
-    const saved = localStorage.getItem('wellnessScores')
-    if (saved) {
-      const savedScores = JSON.parse(saved)
-      setScores(savedScores)
-      
-      // Update wellness state with saved scores
-      setWellnessState(prev => ({
-        ...prev,
-        mind: savedScores.mind,
-        body: savedScores.body,
-        soul: savedScores.soul,
-        lastUpdated: new Date()
-      }))
+  const saved = localStorage.getItem('wellnessScores')
+  console.log('📱 Local environment check:')
+  console.log('- localStorage data:', saved)
+  console.log('- Current scores:', scores)
+  
+  if (saved) {
+    const savedScores = JSON.parse(saved)
+    setScores(savedScores)
+    
+    // Update wellness state with saved scores
+    const newWellnessState = {
+      ...wellnessState,
+      mind: savedScores.mind,
+      body: savedScores.body,
+      soul: savedScores.soul,
+      lastUpdated: new Date()
     }
-  }, [])
+    
+    console.log('🔄 Updated wellness state:', newWellnessState)
+    setWellnessState(newWellnessState)
+  } else {
+    console.log('🔄 Using default wellness state:', wellnessState)
+  }
+}, [])
 
   useEffect(() => {
     localStorage.setItem('wellnessScores', JSON.stringify(scores))
