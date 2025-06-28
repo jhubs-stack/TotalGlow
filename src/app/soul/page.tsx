@@ -46,7 +46,7 @@ export default function SoulPage() {
           <div className="text-center">
             <p className="text-amber-600 text-sm font-semibold mb-6 uppercase tracking-wide">Your Soul Score</p>
             <div className="relative inline-flex items-center justify-center mb-6">
-              <ProgressRing progress={soulScore} color="#f59e0b" size={160} strokeWidth={8} />
+              <ProgressRing progress={soulScore} color="#f59e0b" size={160} />
               <div className="absolute text-center">
                 <div className="text-4xl font-bold text-amber-600">{soulScore}</div>
                 <div className="text-sm text-gray-600 mt-1">
