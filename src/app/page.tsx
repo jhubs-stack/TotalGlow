@@ -25,132 +25,153 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
-      {/* Navigation */}
-      <nav className="px-8 py-6">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            TotalGlow
-          </Link>
-          <div className="flex items-center space-x-6">
-            <Link href="/mind" className="text-gray-700 hover:text-gray-900 font-medium transition-colors">Mind</Link>
-            <Link href="/body" className="text-gray-700 hover:text-gray-900 font-medium transition-colors">Body</Link>
-            <Link href="/soul" className="text-gray-700 hover:text-gray-900 font-medium transition-colors">Soul</Link>
+      {/* Mobile Header */}
+      <header className="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-white/20">
+        <div className="px-4 py-3">
+          <div className="flex items-center justify-between">
+            <Link href="/" className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              TotalGlow
+            </Link>
             <button 
               onClick={() => setShowAICoach(true)}
-              className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-2 rounded-full hover:shadow-lg transition-all flex items-center space-x-2"
+              className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-medium flex items-center space-x-2 shadow-lg active:scale-95 transition-all"
             >
               <span>AI Coach</span>
               <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
             </button>
           </div>
         </div>
-      </nav>
+      </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-8 py-12">
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold text-gray-800 mb-4">Welcome back!</h1>
-          <p className="text-xl text-gray-600">Your wellness journey continues to shine ✨</p>
+      <main className="px-4 py-6 pb-24">
+        {/* Welcome Section */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">Welcome back!</h1>
+          <p className="text-lg text-gray-600">Your wellness journey continues ✨</p>
         </div>
 
         {/* Overall Score Card */}
-        <div className="bg-white/60 backdrop-blur-sm rounded-3xl p-8 max-w-md mx-auto mb-16 shadow-xl border border-white/50">
+        <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 mb-8 shadow-lg border border-white/50">
           <div className="text-center">
-            <p className="text-gray-600 text-sm uppercase tracking-wide mb-4">Overall Wellness</p>
-            <div className="relative inline-flex items-center justify-center">
-              <ProgressRing progress={overallScore} color="#8b5cf6" size={180} />
+            <p className="text-gray-600 text-xs uppercase tracking-wide mb-4 font-medium">Overall Wellness</p>
+            <div className="relative inline-flex items-center justify-center mb-4">
+              <ProgressRing progress={overallScore} color="#8b5cf6" size={140} />
               <div className="absolute text-center">
-                <div className="text-5xl font-bold text-gray-800">{overallScore}</div>
-                <div className="text-[10px] text-gray-600 mt-0.5 leading-tight">{getScoreMessage(overallScore)}</div>
+                <div className="text-3xl font-bold text-gray-800">{overallScore}</div>
+                <div className="text-xs text-gray-600 mt-1 leading-tight max-w-16 text-center">
+                  {overallScore >= 90 ? "Excellent" : overallScore >= 80 ? "Great!" : overallScore >= 70 ? "Good" : overallScore >= 60 ? "Fair" : "Growing"}
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Three Pillars */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-          <Link href="/mind" className="group">
-            <div className="bg-white/60 backdrop-blur-sm rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all hover:-translate-y-1 border border-white/50">
-              <div className="flex justify-between items-start mb-6">
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-800">Mind</h3>
-                  <p className="text-gray-600 text-sm mt-1">Mental wellness</p>
+        {/* Three Pillars Grid */}
+        <div className="space-y-4 mb-8">
+          <Link href="/mind" className="block group active:scale-98 transition-transform">
+            <div className="bg-white/70 backdrop-blur-sm rounded-xl p-4 shadow-md border border-white/50 group-active:bg-white/80">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <span className="text-2xl">🧠</span>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-800">Mind</h3>
+                    <p className="text-sm text-gray-600">Mental Health</p>
+                  </div>
                 </div>
-                <span className="text-4xl">🧠</span>
+                <div className="flex items-center space-x-3">
+                  <ProgressRing progress={scores.mind} color="#8b5cf6" size={50} />
+                  <span className="text-gray-400">→</span>
+                </div>
               </div>
-              <div className="flex justify-center mb-6">
-                <ProgressRing progress={scores.mind} color="#8b5cf6" />
-              </div>
-              <button className="w-full bg-purple-100 text-purple-700 py-3 rounded-xl hover:bg-purple-200 transition-colors font-semibold">
-                Continue Journey →
-              </button>
             </div>
           </Link>
 
-          <Link href="/body" className="group">
-            <div className="bg-white/60 backdrop-blur-sm rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all hover:-translate-y-1 border border-white/50">
-              <div className="flex justify-between items-start mb-6">
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-800">Body</h3>
-                  <p className="text-gray-600 text-sm mt-1">Physical health</p>
+          <Link href="/body" className="block group active:scale-98 transition-transform">
+            <div className="bg-white/70 backdrop-blur-sm rounded-xl p-4 shadow-md border border-white/50 group-active:bg-white/80">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <span className="text-2xl">💪</span>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-800">Body</h3>
+                    <p className="text-sm text-gray-600">Physical Health</p>
+                  </div>
                 </div>
-                <span className="text-4xl">💪</span>
+                <div className="flex items-center space-x-3">
+                  <ProgressRing progress={scores.body} color="#10b981" size={50} />
+                  <span className="text-gray-400">→</span>
+                </div>
               </div>
-              <div className="flex justify-center mb-6">
-                <ProgressRing progress={scores.body} color="#10b981" />
-              </div>
-              <button className="w-full bg-green-100 text-green-700 py-3 rounded-xl hover:bg-green-200 transition-colors font-semibold">
-                Continue Journey →
-              </button>
             </div>
           </Link>
 
-          <Link href="/soul" className="group">
-            <div className="bg-white/60 backdrop-blur-sm rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all hover:-translate-y-1 border border-white/50">
-              <div className="flex justify-between items-start mb-6">
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-800">Soul</h3>
-                  <p className="text-gray-600 text-sm mt-1">Spiritual wellness</p>
+          <Link href="/soul" className="block group active:scale-98 transition-transform">
+            <div className="bg-white/70 backdrop-blur-sm rounded-xl p-4 shadow-md border border-white/50 group-active:bg-white/80">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <span className="text-2xl">✨</span>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-800">Soul</h3>
+                    <p className="text-sm text-gray-600">Spiritual Health</p>
+                  </div>
                 </div>
-                <span className="text-4xl">✨</span>
+                <div className="flex items-center space-x-3">
+                  <ProgressRing progress={scores.soul} color="#f59e0b" size={50} />
+                  <span className="text-gray-400">→</span>
+                </div>
               </div>
-              <div className="flex justify-center mb-6">
-                <ProgressRing progress={scores.soul} color="#f59e0b" />
-              </div>
-              <button className="w-full bg-amber-100 text-amber-700 py-3 rounded-xl hover:bg-amber-200 transition-colors font-semibold">
-                Continue Journey →
-              </button>
             </div>
           </Link>
         </div>
 
-        {/* Streak and Daily Tasks */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-1">
-            <div className="bg-gradient-to-br from-orange-500 to-pink-500 rounded-3xl p-8 text-white h-full shadow-xl">
-              <h3 className="text-xl font-bold mb-4">Current Streak</h3>
-              <div className="text-6xl font-bold mb-2">7 🔥</div>
-              <p className="text-white/80 mb-6">Keep it up! Your longest: 14 days</p>
-              <div>
-                <div className="text-sm uppercase tracking-wide mb-3 text-white/80">This Week</div>
-                <div className="grid grid-cols-7 gap-2">
-                  {[1,2,3,4,5,6,7].map((day) => (
-                    <div key={day} className="bg-white/20 backdrop-blur-sm w-10 h-10 rounded-xl flex items-center justify-center text-lg font-semibold">
-                      ✓
-                    </div>
-                  ))}
-                </div>
-              </div>
+        {/* Current Streak Card */}
+        <div className="bg-gradient-to-br from-orange-500 to-pink-500 rounded-xl p-6 text-white mb-6 shadow-lg">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-lg font-semibold">Current Streak</h3>
+              <div className="text-3xl font-bold">7 🔥</div>
+            </div>
+            <div className="text-right">
+              <p className="text-white/80 text-sm">Longest: 14 days</p>
+              <p className="text-white/80 text-sm">Keep it up!</p>
             </div>
           </div>
-
-          <div className="lg:col-span-2">
-            <DailyCheckins />
+          <div className="grid grid-cols-7 gap-2">
+            {[1,2,3,4,5,6,7].map((day) => (
+              <div key={day} className="bg-white/20 backdrop-blur-sm aspect-square rounded-lg flex items-center justify-center text-sm font-semibold">
+                ✓
+              </div>
+            ))}
           </div>
         </div>
+
+        {/* Daily Check-ins */}
+        <DailyCheckins />
       </main>
 
-      {/* AI Coach Modal - Simple conditional rendering */}
+      {/* Bottom Navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-gray-200 z-30">
+        <div className="grid grid-cols-4 py-2">
+          <Link href="/" className="flex flex-col items-center py-2 px-1">
+            <span className="text-xl mb-1">🏠</span>
+            <span className="text-xs text-blue-600 font-medium">Home</span>
+          </Link>
+          <Link href="/mind" className="flex flex-col items-center py-2 px-1">
+            <span className="text-xl mb-1">🧠</span>
+            <span className="text-xs text-gray-600">Mind</span>
+          </Link>
+          <Link href="/body" className="flex flex-col items-center py-2 px-1">
+            <span className="text-xl mb-1">💪</span>
+            <span className="text-xs text-gray-600">Body</span>
+          </Link>
+          <Link href="/soul" className="flex flex-col items-center py-2 px-1">
+            <span className="text-xl mb-1">✨</span>
+            <span className="text-xs text-gray-600">Soul</span>
+          </Link>
+        </div>
+      </nav>
+
+      {/* AI Coach Modal */}
       {showAICoach && <AICoach onClose={() => setShowAICoach(false)} />}
     </div>
   )

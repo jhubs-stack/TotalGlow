@@ -9,80 +9,88 @@ export default function SoulPage() {
   const [soulScore] = useState(72)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-100 via-orange-100 to-yellow-100 page-transition">
-      {/* Navigation */}
-      <nav className="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+    <div className="min-h-screen bg-gradient-to-br from-amber-100 via-orange-100 to-yellow-100">
+      {/* Mobile Header */}
+      <header className="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-white/20">
+        <div className="px-4 py-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-6">
-              <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                TotalGlow
-              </Link>
-              <div className="flex items-center space-x-4">
-                <Link href="/mind" className="text-gray-600 hover:text-gray-800 transition-colors">Mind</Link>
-                <Link href="/body" className="text-gray-600 hover:text-gray-800 transition-colors">Body</Link>
-                <Link href="/soul" className="text-amber-600 font-semibold border-b-2 border-amber-600 pb-1">Soul</Link>
-              </div>
-            </div>
+            <Link href="/" className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              TotalGlow
+            </Link>
             <button 
               onClick={() => setShowAICoach(true)}
-              className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-2 rounded-full hover:shadow-lg transition-all flex items-center space-x-2"
+              className="bg-gradient-to-r from-amber-500 to-orange-600 text-white px-4 py-2 rounded-full text-sm font-medium flex items-center space-x-2 shadow-lg active:scale-95 transition-all"
             >
               <span>AI Coach</span>
               <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
             </button>
           </div>
         </div>
-      </nav>
+      </header>
 
-      {/* Hero Section */}
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold text-gray-800 mb-4">Soul Wellness</h1>
-          <p className="text-xl text-gray-600">Cultivate inner peace and spiritual connection ✨</p>
+      {/* Main Content */}
+      <main className="px-4 py-6 pb-24">
+        {/* Welcome Section */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">Soul Wellness</h1>
+          <p className="text-lg text-gray-600">Cultivate inner peace and connection ✨</p>
         </div>
 
-        {/* Soul Score */}
-        <div className="bg-white/60 backdrop-blur-sm rounded-3xl p-8 max-w-md mx-auto mb-16 shadow-xl border border-white/50">
+        {/* Soul Score Card */}
+        <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 mb-8 shadow-lg border border-white/50">
           <div className="text-center">
-            <p className="text-gray-600 text-sm uppercase tracking-wide mb-4">Soul Wellness Score</p>
-            <div className="relative inline-flex items-center justify-center">
-              <ProgressRing progress={soulScore} color="#f59e0b" size={180} />
+            <p className="text-gray-600 text-xs uppercase tracking-wide mb-4 font-medium">Soul Wellness Score</p>
+            <div className="relative inline-flex items-center justify-center mb-4">
+              <ProgressRing progress={soulScore} color="#f59e0b" size={140} />
               <div className="absolute text-center">
-                <div className="text-5xl font-bold text-gray-800">{soulScore}</div>
-                <div className="text-xs text-gray-600 mt-1">Growing</div>
+                <div className="text-3xl font-bold text-gray-800">{soulScore}</div>
+                <div className="text-xs text-gray-600 mt-1 leading-tight max-w-16 text-center">
+                  {soulScore >= 90 ? "Excellent" : soulScore >= 80 ? "Great!" : soulScore >= 70 ? "Good" : soulScore >= 60 ? "Fair" : "Growing"}
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Today's Recommendations */}
-        <div className="mb-16">
-          <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">Today's Recommendations</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/50">
-              <div className="text-4xl mb-4">🙏</div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">Gratitude Practice</h3>
-              <p className="text-gray-600 mb-4">List 5 blessings and reflect on their meaning</p>
-              <button className="bg-amber-100 text-amber-700 px-4 py-2 rounded-lg hover:bg-amber-200 transition-colors">
+        <div className="mb-8">
+          <h2 className="text-xl font-bold text-gray-800 mb-4">Today's Recommendations</h2>
+          <div className="space-y-4">
+            <div className="bg-white/70 backdrop-blur-sm rounded-xl p-4 shadow-md border border-white/50">
+              <div className="flex items-center space-x-3 mb-3">
+                <span className="text-2xl">🙏</span>
+                <div>
+                  <h3 className="font-semibold text-gray-800">Gratitude Practice</h3>
+                  <p className="text-sm text-gray-600">List 5 blessings and reflect</p>
+                </div>
+              </div>
+              <button className="w-full bg-amber-100 text-amber-700 py-2 rounded-lg font-medium active:scale-95 transition-transform">
                 Begin Practice
               </button>
             </div>
 
-            <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/50">
-              <div className="text-4xl mb-4">💖</div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">Compassion Med</h3>
-              <p className="text-gray-600 mb-4">Send loving energy to yourself and others</p>
-              <button className="bg-amber-100 text-amber-700 px-4 py-2 rounded-lg hover:bg-amber-200 transition-colors">
+            <div className="bg-white/70 backdrop-blur-sm rounded-xl p-4 shadow-md border border-white/50">
+              <div className="flex items-center space-x-3 mb-3">
+                <span className="text-2xl">💖</span>
+                <div>
+                  <h3 className="font-semibold text-gray-800">Compassion Med</h3>
+                  <p className="text-sm text-gray-600">Send loving energy to others</p>
+                </div>
+              </div>
+              <button className="w-full bg-amber-100 text-amber-700 py-2 rounded-lg font-medium active:scale-95 transition-transform">
                 Start Session
               </button>
             </div>
 
-            <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/50">
-              <div className="text-4xl mb-4">🌱</div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">Nature Connect</h3>
-              <p className="text-gray-600 mb-4">Ground yourself with 15 minutes outdoors</p>
-              <button className="bg-amber-100 text-amber-700 px-4 py-2 rounded-lg hover:bg-amber-200 transition-colors">
+            <div className="bg-white/70 backdrop-blur-sm rounded-xl p-4 shadow-md border border-white/50">
+              <div className="flex items-center space-x-3 mb-3">
+                <span className="text-2xl">🌱</span>
+                <div>
+                  <h3 className="font-semibold text-gray-800">Nature Connect</h3>
+                  <p className="text-sm text-gray-600">15 minutes grounding outdoors</p>
+                </div>
+              </div>
+              <button className="w-full bg-amber-100 text-amber-700 py-2 rounded-lg font-medium active:scale-95 transition-transform">
                 Get Started
               </button>
             </div>
@@ -90,41 +98,63 @@ export default function SoulPage() {
         </div>
 
         {/* Progress Tracking */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-white/50">
-            <h3 className="text-2xl font-semibold text-gray-800 mb-6">Spiritual Journey</h3>
-            <div className="space-y-4">
+        <div className="space-y-4">
+          <div className="bg-white/70 backdrop-blur-sm rounded-xl p-4 shadow-md border border-white/50">
+            <h3 className="font-semibold text-gray-800 mb-4">Spiritual Journey</h3>
+            <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-gray-600">Gratitude Sessions</span>
-                <span className="font-semibold text-amber-600">4/7 days</span>
+                <span className="text-sm text-gray-600">Gratitude Sessions</span>
+                <span className="font-medium text-amber-600">4/7 days</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-gray-600">Meditation Minutes</span>
-                <span className="font-semibold text-amber-600">180 min</span>
+                <span className="text-sm text-gray-600">Meditation Minutes</span>
+                <span className="font-medium text-amber-600">180 min</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-gray-600">Acts of Kindness</span>
-                <span className="font-semibold text-pink-600">8 this week</span>
+                <span className="text-sm text-gray-600">Acts of Kindness</span>
+                <span className="font-medium text-pink-600">8 this week</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-gray-600">Nature Time</span>
-                <span className="font-semibold text-green-600">45 min avg</span>
+                <span className="text-sm text-gray-600">Nature Time</span>
+                <span className="font-medium text-green-600">45 min avg</span>
               </div>
             </div>
           </div>
 
-          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-white/50">
-            <h3 className="text-2xl font-semibold text-gray-800 mb-6">Inner Growth</h3>
-            <div className="text-center">
-              <div className="text-6xl mb-4">🌟</div>
-              <p className="text-gray-600 mb-4">
+          <div className="bg-white/70 backdrop-blur-sm rounded-xl p-4 shadow-md border border-white/50">
+            <h3 className="font-semibold text-gray-800 mb-4">Inner Growth</h3>
+            <div className="text-center py-4">
+              <div className="text-4xl mb-3">🌟</div>
+              <p className="text-sm text-gray-600 mb-3 italic leading-relaxed">
                 "Today I am grateful for the journey of growth and the peace I'm cultivating within myself."
               </p>
-              <p className="text-sm text-gray-500 italic">- Your reflection from yesterday</p>
+              <p className="text-xs text-gray-500">- Your reflection from yesterday</p>
             </div>
           </div>
         </div>
-      </div>
+      </main>
+
+      {/* Bottom Navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-gray-200 z-30">
+        <div className="grid grid-cols-4 py-2">
+          <Link href="/" className="flex flex-col items-center py-2 px-1">
+            <span className="text-xl mb-1">🏠</span>
+            <span className="text-xs text-gray-600">Home</span>
+          </Link>
+          <Link href="/mind" className="flex flex-col items-center py-2 px-1">
+            <span className="text-xl mb-1">🧠</span>
+            <span className="text-xs text-gray-600">Mind</span>
+          </Link>
+          <Link href="/body" className="flex flex-col items-center py-2 px-1">
+            <span className="text-xl mb-1">💪</span>
+            <span className="text-xs text-gray-600">Body</span>
+          </Link>
+          <Link href="/soul" className="flex flex-col items-center py-2 px-1">
+            <span className="text-xl mb-1">✨</span>
+            <span className="text-xs text-amber-600 font-medium">Soul</span>
+          </Link>
+        </div>
+      </nav>
 
       {/* AI Coach Modal */}
       {showAICoach && <AICoach onClose={() => setShowAICoach(false)} />}
