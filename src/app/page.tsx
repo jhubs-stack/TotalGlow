@@ -89,9 +89,15 @@ export default function Home() {
     })
   }
 
-  // NEW: Handle voice check-in results
+  // Handle voice check-in results
   const handleVoiceCheckin = (analysis: VoiceAnalysis) => {
-    if (!wellnessState) return
+    console.log('🎤 Voice analysis received:', analysis)
+    console.log('🎯 Current scores before:', scores)
+    
+    if (!wellnessState) {
+      console.log('❌ No wellness state!')
+      return
+    }
 
     // Apply voice analysis to pillar scores
     const newScores = {
@@ -99,6 +105,9 @@ export default function Home() {
       body: Math.max(0, Math.min(100, scores.body + analysis.pillarUpdates.body)),
       soul: Math.max(0, Math.min(100, scores.soul + analysis.pillarUpdates.soul))
     }
+
+    console.log('🎯 New scores after:', newScores)
+    console.log('📊 Pillar updates:', analysis.pillarUpdates)
 
     // Update scores
     setScores(newScores)

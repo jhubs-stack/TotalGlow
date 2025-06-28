@@ -85,32 +85,61 @@ export const generateWellnessPredictions = (data: PredictionData): WellnessPredi
 
 // AI Analysis Function for Voice Input
 export const analyzeVoiceInput = async (transcript: string): Promise<VoiceAnalysis> => {
-  // Simulate AI analysis - in real app, this would call Claude API
   const words = transcript.toLowerCase().split(' ')
   
-  // Mood analysis
-  const positiveWords = ['good', 'great', 'amazing', 'happy', 'excited', 'energetic']
-  const negativeWords = ['tired', 'stressed', 'anxious', 'bad', 'exhausted', 'overwhelmed']
+  // Enhanced mood analysis with more keywords
+  const positiveWords = ['good', 'great', 'amazing', 'happy', 'excited', 'energetic', 'fantastic', 'wonderful', 'awesome', 'motivated', 'confident', 'peaceful', 'joyful', 'optimistic']
+  const negativeWords = ['tired', 'stressed', 'anxious', 'bad', 'exhausted', 'overwhelmed', 'depressed', 'frustrated', 'angry', 'sad', 'worried', 'burnt', 'drained', 'terrible']
   
+  // Workout/fitness keywords
+  const workoutWords = ['workout', 'exercise', 'gym', 'run', 'running', 'training', 'fitness', 'yoga', 'cardio', 'strength', 'swim', 'bike', 'sport']
+  const restWords = ['rest', 'sleep', 'nap', 'relax', 'recovery', 'massage']
+  
+  // Soul/spiritual keywords  
+  const spiritualWords = ['grateful', 'thankful', 'blessed', 'peaceful', 'meditation', 'mindful', 'nature', 'prayer', 'spiritual', 'centered']
+  const negativeSpiritualWords = ['disconnected', 'empty', 'meaningless', 'lost', 'isolated']
+  
+  // Calculate keyword scores
   const positiveScore = words.filter(w => positiveWords.includes(w)).length
   const negativeScore = words.filter(w => negativeWords.includes(w)).length
+  const workoutScore = words.filter(w => workoutWords.includes(w)).length
+  const restScore = words.filter(w => restWords.includes(w)).length
+  const spiritualScore = words.filter(w => spiritualWords.includes(w)).length
+  const negSpiritualScore = words.filter(w => negativeSpiritualWords.includes(w)).length
   
+  // Determine overall mood
   let mood: 'positive' | 'neutral' | 'negative' = 'neutral'
-  if (positiveScore > negativeScore) mood = 'positive'
+  if (positiveScore > negativeScore + 1) mood = 'positive'
   if (negativeScore > positiveScore) mood = 'negative'
   
-  // Generate pillar updates based on keywords
+  // Calculate pillar updates with realistic impacts
+  const baseMoodImpact = mood === 'positive' ? 4 : mood === 'negative' ? -3 : 0
+  
   const pillarUpdates = {
-    mind: mood === 'positive' ? 3 : mood === 'negative' ? -2 : 0,
-    body: words.includes('workout') || words.includes('exercise') ? 2 : 0,
-    soul: words.includes('grateful') || words.includes('peaceful') ? 2 : 0
+    mind: baseMoodImpact + 
+          (negativeWords.some(w => ['stressed', 'anxious', 'overwhelmed', 'frustrated'].includes(w) && words.includes(w)) ? -2 : 0) +
+          (positiveWords.some(w => ['confident', 'motivated', 'optimistic'].includes(w) && words.includes(w)) ? 2 : 0),
+    
+    body: (workoutScore > 0 ? 3 : 0) + 
+          (restScore > 0 ? 1 : 0) +
+          (negativeWords.some(w => ['tired', 'exhausted', 'drained'].includes(w) && words.includes(w)) ? -2 : 0) +
+          (mood === 'positive' ? 1 : mood === 'negative' ? -1 : 0),
+    
+    soul: (spiritualScore > 0 ? 3 : 0) + 
+          (negSpiritualScore > 0 ? -2 : 0) +
+          (baseMoodImpact * 0.5) // Soul affected by general mood
   }
+  
+  // Round to integers and ensure reasonable bounds
+  Object.keys(pillarUpdates).forEach(key => {
+    pillarUpdates[key as keyof typeof pillarUpdates] = Math.round(Math.max(-5, Math.min(5, pillarUpdates[key as keyof typeof pillarUpdates])))
+  })
   
   return {
     mood,
-    energy: mood === 'positive' ? 8 : mood === 'negative' ? 4 : 6,
-    stress: mood === 'negative' ? 7 : mood === 'positive' ? 3 : 5,
-    keywords: [...positiveWords, ...negativeWords].filter(w => words.includes(w)),
+    energy: mood === 'positive' ? Math.min(9, 6 + positiveScore) : mood === 'negative' ? Math.max(2, 6 - negativeScore) : 6,
+    stress: mood === 'negative' ? Math.min(9, 4 + negativeScore) : mood === 'positive' ? Math.max(1, 4 - positiveScore) : 4,
+    keywords: [...positiveWords, ...negativeWords, ...workoutWords, ...spiritualWords].filter(w => words.includes(w)),
     transcript,
     pillarUpdates
   }
