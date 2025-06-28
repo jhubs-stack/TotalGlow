@@ -14,9 +14,9 @@ export default function SoulPage() {
       <header className="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-white/20">
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center space-x-3">
-              <span className="text-xl font-light bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent italic">TotalGlow</span>
-              <div className="w-px h-6 bg-gradient-to-b from-blue-600 to-purple-600"></div>
+            <Link href="/" className="flex items-center space-x-3 overflow-visible">
+              <span className="text-xl font-light bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent italic whitespace-nowrap">TotalGlow</span>
+              <div className="w-px h-6 bg-gradient-to-b from-blue-600 to-purple-600 flex-shrink-0"></div>
               <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">AI</span>
             </Link>
             <button 
