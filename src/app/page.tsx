@@ -1,22 +1,39 @@
 'use client'
 import { useState, useEffect } from 'react'
-import DailyCheckins from '@/components/DailyCheckins'
 import ProgressRing from '@/components/ProgressRing'
 import CrossPillarInsights from '@/components/CrossPillarInsights'
 import VoiceCheckin from '@/components/VoiceCheckin'
 import Link from 'next/link'
-import { calculateWellnessScore, getScoreMessage } from '@/utils/wellness'
-import { 
-  calculatePillarImpacts, 
-  applyPillarImpacts,
-  WellnessState 
-} from '@/utils/pillarConnections'
-import { VoiceAnalysis } from '@/utils/aiPredictions'
+import { calculateWellnessScore } from '@/utils/wellness'
 import AICoach from '@/components/AICoach'
 
+// Define types locally to avoid import issues
+interface WellnessScores {
+  mind: number
+  body: number
+  soul: number
+}
+
+interface WellnessState {
+  mind: number
+  body: number
+  soul: number
+  lastUpdated: Date
+  recentActivities: string[]
+  trends: {
+    mind: number[]
+    body: number[]
+    soul: number[]
+  }
+}
+
+interface VoiceAnalysis {
+  mood?: string
+  pillarUpdates?: Partial<WellnessScores>
+}
+
 export default function Home() {
-  // Standardized default scores for consistent demo experience
-  const [scores, setScores] = useState({ mind: 78, body: 85, soul: 72 })
+  const [scores, setScores] = useState<WellnessScores>({ mind: 78, body: 85, soul: 72 })
   const [overallScore, setOverallScore] = useState(0)
   const [showAICoach, setShowAICoach] = useState(false)
   
@@ -24,14 +41,14 @@ export default function Home() {
   const [mounted, setMounted] = useState(false)
   const [insightsReady, setInsightsReady] = useState(false)
   
-  // Wellness state for interconnectivity tracking - Initialize without Date
+  // Wellness state for interconnectivity tracking
   const [wellnessState, setWellnessState] = useState<WellnessState | null>(null)
 
   useEffect(() => {
     setMounted(true)
     
     // Initialize wellness state only on client
-    const initialWellnessState = {
+    const initialWellnessState: WellnessState = {
       mind: 78,
       body: 85,
       soul: 72,
@@ -46,95 +63,68 @@ export default function Home() {
     
     setWellnessState(initialWellnessState)
     
-    // Check for saved scores and update if needed
     const saved = localStorage.getItem('wellnessScores')
     if (saved) {
-      const savedScores = JSON.parse(saved)
-      setScores(savedScores)
-      
-      // Update wellness state with saved scores
-      setWellnessState({
-        ...initialWellnessState,
-        mind: savedScores.mind,
-        body: savedScores.body,
-        soul: savedScores.soul,
-        lastUpdated: new Date()
-      })
+      try {
+        const savedScores = JSON.parse(saved) as WellnessScores
+        setScores(savedScores)
+        
+        setWellnessState({
+          ...initialWellnessState,
+          mind: savedScores.mind,
+          body: savedScores.body,
+          soul: savedScores.soul,
+          lastUpdated: new Date()
+        })
+      } catch (error) {
+        console.error('Error parsing saved scores:', error)
+      }
     }
     
-    // Small delay to ensure everything is hydrated
     setTimeout(() => setInsightsReady(true), 200)
   }, [])
 
   useEffect(() => {
-    localStorage.setItem('wellnessScores', JSON.stringify(scores))
-    setOverallScore(calculateWellnessScore(scores.mind, scores.body, scores.soul))
-  }, [scores])
-
-  // Function to simulate pillar activities and their interconnected effects
-  const simulateActivity = (activity: string, pillar: 'mind' | 'body' | 'soul') => {
-    if (!wellnessState) return
-    
-    const impacts = calculatePillarImpacts(wellnessState, activity, pillar)
-    const newState = applyPillarImpacts(wellnessState, impacts)
-    
-    // Update wellness state
-    setWellnessState(newState)
-    
-    // Update individual scores for UI
-    setScores({
-      mind: newState.mind,
-      body: newState.body,
-      soul: newState.soul
-    })
-  }
+    if (mounted) {
+      localStorage.setItem('wellnessScores', JSON.stringify(scores))
+      setOverallScore(calculateWellnessScore(scores.mind, scores.body, scores.soul))
+    }
+  }, [scores, mounted])
 
   // Handle voice check-in results
   const handleVoiceCheckin = (analysis: VoiceAnalysis) => {
-    console.log('🎤 Voice analysis received:', analysis)
-    console.log('🎯 Current scores before:', scores)
-    
-    if (!wellnessState) {
-      console.log('❌ No wellness state!')
-      return
+    if (!wellnessState) return
+
+    const pillarUpdates = analysis.pillarUpdates || {}
+    const newScores: WellnessScores = {
+      mind: Math.max(0, Math.min(100, scores.mind + (pillarUpdates.mind || 0))),
+      body: Math.max(0, Math.min(100, scores.body + (pillarUpdates.body || 0))),
+      soul: Math.max(0, Math.min(100, scores.soul + (pillarUpdates.soul || 0)))
     }
 
-    // Apply voice analysis to pillar scores
-    const newScores = {
-      mind: Math.max(0, Math.min(100, scores.mind + analysis.pillarUpdates.mind)),
-      body: Math.max(0, Math.min(100, scores.body + analysis.pillarUpdates.body)),
-      soul: Math.max(0, Math.min(100, scores.soul + analysis.pillarUpdates.soul))
-    }
-
-    console.log('🎯 New scores after:', newScores)
-    console.log('📊 Pillar updates:', analysis.pillarUpdates)
-
-    // Update scores
     setScores(newScores)
 
-    // Update wellness state
-    const newState = {
+    const newState: WellnessState = {
       ...wellnessState,
       mind: newScores.mind,
       body: newScores.body,
       soul: newScores.soul,
       lastUpdated: new Date(),
-      recentActivities: [...wellnessState.recentActivities, `voice_checkin_${analysis.mood}`]
+      recentActivities: [...wellnessState.recentActivities, `voice_checkin_${analysis.mood || 'neutral'}`]
     }
     setWellnessState(newState)
-
-    // Show a brief success message (optional)
-    console.log('Voice analysis complete:', analysis)
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
-      {/* Mobile Header */}
+      {/* Header */}
       <header className="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-white/20">
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
-            <Link href="/" className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              TotalGlow
+            <Link href="/" className="flex items-center space-x-3">
+              <span className="text-xl font-light bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent italic">TotalGlow</span>
+              <div className="w-px h-6 bg-gradient-to-b from-blue-600 to-purple-600"></div>
+              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">AI</span>
             </Link>
             <button 
               onClick={() => setShowAICoach(true)}
@@ -149,164 +139,193 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="px-4 py-6 pb-24">
-        {/* Welcome Section */}
-        <div className="text-center mb-6">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">Welcome back!</h1>
-          <p className="text-lg text-gray-600">Your wellness journey continues ✨</p>
+        {/* HERO SECTION: Voice-First Check-in */}
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">How are your mind, body & soul today?</h1>
+          <p className="text-gray-600 mb-6">Share your wellness journey with voice or text</p>
+          
+          {/* Voice Check-in - Hero placement */}
+          {mounted && (
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/50 mb-8">
+              <VoiceCheckin onComplete={handleVoiceCheckin} isMinimized={true} />
+            </div>
+          )}
         </div>
 
-        {/* NEW: Voice Check-in - Prominent placement */}
+        {/* ENHANCED THREE PILLARS - Only render when mounted */}
         {mounted && (
-          <div className="mb-8">
-            <VoiceCheckin onComplete={handleVoiceCheckin} isMinimized={true} />
+          <div className="space-y-6 mb-8">
+            <h2 className="text-xl font-semibold text-gray-800 text-center mb-6">Your Wellness Pillars</h2>
+            
+            {/* Mind Pillar */}
+            <Link href="/mind" className="block group active:scale-98 transition-all">
+              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/60 group-active:shadow-xl relative overflow-hidden">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center">
+                      <span className="text-2xl">🧠</span>
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold text-gray-800">Mind</h3>
+                      <p className="text-gray-600">Mental wellness & clarity</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-3xl font-bold text-purple-600">{scores.mind}</div>
+                    <div className="text-sm text-gray-500">/ 100</div>
+                  </div>
+                </div>
+                
+                <div className="w-full bg-gray-200 rounded-full h-3 mb-3">
+                  <div 
+                    className="bg-gradient-to-r from-purple-500 to-purple-600 h-3 rounded-full transition-all duration-700"
+                    style={{ width: `${scores.mind}%` }}
+                  />
+                </div>
+                
+                <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center text-gray-600">
+                    <div className="w-2 h-2 bg-blue-400 rounded-full mr-2 animate-pulse"></div>
+                    Connected to Body & Soul
+                  </div>
+                  <span className="text-purple-400 font-medium">→</span>
+                </div>
+              </div>
+            </Link>
+
+            {/* Body Pillar */}
+            <Link href="/body" className="block group active:scale-98 transition-all">
+              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/60 group-active:shadow-xl relative overflow-hidden">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center">
+                      <span className="text-2xl">💪</span>
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold text-gray-800">Body</h3>
+                      <p className="text-gray-600">Physical health & energy</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-3xl font-bold text-green-600">{scores.body}</div>
+                    <div className="text-sm text-gray-500">/ 100</div>
+                  </div>
+                </div>
+                
+                <div className="w-full bg-gray-200 rounded-full h-3 mb-3">
+                  <div 
+                    className="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-700"
+                    style={{ width: `${scores.body}%` }}
+                  />
+                </div>
+                
+                <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center text-gray-600">
+                    <div className="w-2 h-2 bg-purple-400 rounded-full mr-2 animate-pulse"></div>
+                    Connected to Mind & Soul
+                  </div>
+                  <span className="text-green-400 font-medium">→</span>
+                </div>
+              </div>
+            </Link>
+
+            {/* Soul Pillar */}
+            <Link href="/soul" className="block group active:scale-98 transition-all">
+              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/60 group-active:shadow-xl relative overflow-hidden">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-14 h-14 bg-amber-100 rounded-full flex items-center justify-center">
+                      <span className="text-2xl">✨</span>
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold text-gray-800">Soul</h3>
+                      <p className="text-gray-600">Spiritual growth & peace</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-3xl font-bold text-amber-600">{scores.soul}</div>
+                    <div className="text-sm text-gray-500">/ 100</div>
+                  </div>
+                </div>
+                
+                <div className="w-full bg-gray-200 rounded-full h-3 mb-3">
+                  <div 
+                    className="bg-gradient-to-r from-amber-500 to-amber-600 h-3 rounded-full transition-all duration-700"
+                    style={{ width: `${scores.soul}%` }}
+                  />
+                </div>
+                
+                <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center text-gray-600">
+                    <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
+                    Connected to Mind & Body
+                  </div>
+                  <span className="text-amber-400 font-medium">→</span>
+                </div>
+              </div>
+            </Link>
           </div>
         )}
 
-        {/* Overall Score Card */}
-        <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 mb-8 shadow-lg border border-white/50">
-          <div className="text-center">
-            <p className="text-gray-600 text-xs uppercase tracking-wide mb-4 font-medium">Overall Wellness</p>
-            <div className="relative inline-flex items-center justify-center mb-4">
-              <ProgressRing progress={overallScore} color="#8b5cf6" size={140} />
-              <div className="absolute text-center">
-                <div className="text-3xl font-bold text-gray-800">{overallScore}</div>
-                <div className="text-xs text-gray-600 mt-1 leading-tight max-w-16 text-center">
-                  {overallScore >= 90 ? "Excellent" : overallScore >= 80 ? "Great!" : overallScore >= 70 ? "Good" : overallScore >= 60 ? "Fair" : "Growing"}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Three Pillars Grid - Enhanced with connection indicators */}
-        <div className="space-y-4 mb-8">
-          <Link href="/mind" className="block group active:scale-98 transition-transform">
-            <div className="bg-white/70 backdrop-blur-sm rounded-xl p-4 shadow-md border border-white/50 group-active:bg-white/80 relative">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <span className="text-2xl">🧠</span>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-800">Mind</h3>
-                    <p className="text-sm text-gray-600">Mental Health</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <ProgressRing progress={scores.mind} color="#8b5cf6" size={50} />
-                  <span className="text-gray-400">→</span>
-                </div>
-              </div>
-              {/* Connection indicator */}
-              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-1 h-4 bg-gradient-to-b from-purple-300 to-transparent rounded-full opacity-50"></div>
-            </div>
-          </Link>
-
-          <Link href="/body" className="block group active:scale-98 transition-transform">
-            <div className="bg-white/70 backdrop-blur-sm rounded-xl p-4 shadow-md border border-white/50 group-active:bg-white/80 relative">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <span className="text-2xl">💪</span>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-800">Body</h3>
-                    <p className="text-sm text-gray-600">Physical Health</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <ProgressRing progress={scores.body} color="#10b981" size={50} />
-                  <span className="text-gray-400">→</span>
-                </div>
-              </div>
-              {/* Connection indicators */}
-              <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-1 h-4 bg-gradient-to-t from-green-300 to-transparent rounded-full opacity-50"></div>
-              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-1 h-4 bg-gradient-to-b from-green-300 to-transparent rounded-full opacity-50"></div>
-            </div>
-          </Link>
-
-          <Link href="/soul" className="block group active:scale-98 transition-transform">
-            <div className="bg-white/70 backdrop-blur-sm rounded-xl p-4 shadow-md border border-white/50 group-active:bg-white/80 relative">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <span className="text-2xl">✨</span>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-800">Soul</h3>
-                    <p className="text-sm text-gray-600">Spiritual Health</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <ProgressRing progress={scores.soul} color="#f59e0b" size={50} />
-                  <span className="text-gray-400">→</span>
-                </div>
-              </div>
-              {/* Connection indicator */}
-              <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-1 h-4 bg-gradient-to-t from-amber-300 to-transparent rounded-full opacity-50"></div>
-            </div>
-          </Link>
-        </div>
-
-        {/* Cross-Pillar Insights - Enhanced positioning */}
+        {/* CROSS-PILLAR INSIGHTS - Prime placement after pillars */}
         {mounted && insightsReady && wellnessState && (
           <div className="mb-8">
             <CrossPillarInsights wellnessState={wellnessState} />
           </div>
         )}
 
-        {/* Demo Buttons - Minimized for production feel */}
+        {/* COMPACT OVERALL SCORE - Summary format */}
         {mounted && (
-          <div className="mb-6 bg-white/30 backdrop-blur-sm rounded-xl p-3 border border-white/30">
-            <details className="group">
-              <summary className="text-sm font-medium text-gray-600 cursor-pointer flex items-center justify-between">
-                <span>🧪 Try Pillar Connections</span>
-                <span className="group-open:rotate-180 transition-transform">▼</span>
-              </summary>
-              <div className="mt-3 grid grid-cols-1 gap-2">
-                <button 
-                  onClick={() => simulateActivity('meditation_completed', 'mind')}
-                  className="bg-purple-100 text-purple-700 px-4 py-2 rounded-lg text-sm font-medium active:scale-95 transition-all flex items-center justify-between"
-                >
-                  <span>🧘‍♀️ Complete Meditation</span>
-                  <span className="text-xs">Mind → Body + Soul</span>
-                </button>
-                <button 
-                  onClick={() => simulateActivity('workout_completed', 'body')}
-                  className="bg-green-100 text-green-700 px-4 py-2 rounded-lg text-sm font-medium active:scale-95 transition-all flex items-center justify-between"
-                >
-                  <span>💪 Finish Workout</span>
-                  <span className="text-xs">Body → Mind + Soul</span>
-                </button>
-                <button 
-                  onClick={() => simulateActivity('gratitude_practice', 'soul')}
-                  className="bg-amber-100 text-amber-700 px-4 py-2 rounded-lg text-sm font-medium active:scale-95 transition-all flex items-center justify-between"
-                >
-                  <span>🙏 Gratitude Practice</span>
-                  <span className="text-xs">Soul → Mind</span>
-                </button>
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-5 mb-6 shadow-lg border border-white/50">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800">Overall Wellness</h3>
+                <p className="text-gray-600 flex items-center text-sm">
+                  <span className="mr-2">7 day streak</span>
+                  <span className="text-orange-500">🔥</span>
+                </p>
               </div>
-            </details>
+              <div className="flex items-center space-x-4">
+                <div className="text-right">
+                  <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    {overallScore}
+                  </div>
+                  <div className="text-xs text-gray-500">/ 100</div>
+                </div>
+                <ProgressRing progress={overallScore} color="#8b5cf6" size={60} />
+              </div>
+            </div>
           </div>
         )}
 
-        {/* Current Streak Card */}
-        <div className="bg-gradient-to-br from-orange-500 to-pink-500 rounded-xl p-6 text-white mb-6 shadow-lg">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-lg font-semibold">Current Streak</h3>
-              <div className="text-3xl font-bold">7 🔥</div>
+        {/* Secondary Features - Minimized */}
+        <div className="space-y-4">
+          {/* Demo Buttons - Minimized but accessible */}
+          {mounted && (
+            <div className="bg-white/30 backdrop-blur-sm rounded-xl p-3 border border-white/30">
+              <details className="group">
+                <summary className="text-sm font-medium text-gray-600 cursor-pointer flex items-center justify-between">
+                  <span>🧪 Try Pillar Connections</span>
+                  <span className="group-open:rotate-180 transition-transform">▼</span>
+                </summary>
+                <div className="mt-3 grid grid-cols-1 gap-2">
+                  <button className="bg-purple-100 text-purple-700 px-4 py-2 rounded-lg text-sm font-medium active:scale-95 transition-all flex items-center justify-between">
+                    <span>🧘‍♀️ Complete Meditation</span>
+                    <span className="text-xs">Mind → Body + Soul</span>
+                  </button>
+                  <button className="bg-green-100 text-green-700 px-4 py-2 rounded-lg text-sm font-medium active:scale-95 transition-all flex items-center justify-between">
+                    <span>💪 Finish Workout</span>
+                    <span className="text-xs">Body → Mind + Soul</span>
+                  </button>
+                  <button className="bg-amber-100 text-amber-700 px-4 py-2 rounded-lg text-sm font-medium active:scale-95 transition-all flex items-center justify-between">
+                    <span>🙏 Gratitude Practice</span>
+                    <span className="text-xs">Soul → Mind</span>
+                  </button>
+                </div>
+              </details>
             </div>
-            <div className="text-right">
-              <p className="text-white/80 text-sm">Longest: 14 days</p>
-              <p className="text-white/80 text-sm">Keep it up!</p>
-            </div>
-          </div>
-          <div className="grid grid-cols-7 gap-2">
-            {[1,2,3,4,5,6,7].map((day) => (
-              <div key={day} className="bg-white/20 backdrop-blur-sm aspect-square rounded-lg flex items-center justify-center text-sm font-semibold">
-                ✓
-              </div>
-            ))}
-          </div>
+          )}
         </div>
-
-        {/* Daily Check-ins */}
-        <DailyCheckins />
       </main>
 
       {/* Bottom Navigation */}

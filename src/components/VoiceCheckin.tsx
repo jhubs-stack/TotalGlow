@@ -119,29 +119,60 @@ export default function VoiceCheckin({ onComplete, isMinimized = false }: VoiceC
     }
   }
 
-  // Minimized version for main page - TEXT-FIRST DESIGN
+  // Voice-first design with text fallback
   if (isMinimized) {
     return (
-      <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 backdrop-blur-sm rounded-xl p-4 border border-blue-200/50">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex-1">
-            <h3 className="text-sm font-medium text-gray-800">AI Wellness Check-in</h3>
-            <p className="text-xs text-gray-600">
-              {isAnalyzing ? 'Analyzing your wellness...' : 'Share how you\'re feeling today'}
-            </p>
-          </div>
-          <button
-            onClick={() => setShowVoiceMode(!showVoiceMode)}
-            className="text-xs text-blue-600 hover:text-blue-800 font-medium px-2 py-1 rounded bg-blue-50"
-          >
-            {showVoiceMode ? '✍️ Text' : '🎤 Voice'}
-          </button>
+      <div className="bg-gradient-to-r from-purple-500/15 to-blue-500/15 backdrop-blur-sm rounded-2xl p-5 border border-purple-200/50 shadow-lg">
+        <div className="text-center mb-4">
+          <h3 className="text-lg font-semibold text-gray-800 mb-1">AI Wellness Check-in</h3>
+          <p className="text-sm text-gray-600">
+            {isRecording ? '🎤 Listening...' : isAnalyzing ? '🧠 Analyzing...' : 'Tell me how you\'re feeling today'}
+          </p>
         </div>
 
-        {/* TEXT-FIRST: Always show text input prominently */}
+        {/* VOICE-FIRST: Primary interaction */}
         {!showVoiceMode ? (
+          <div className="space-y-4">
+            {!isRecording ? (
+              <button
+                onClick={startVoiceCheckin}
+                disabled={isAnalyzing}
+                className="w-full bg-gradient-to-r from-purple-500 to-blue-600 text-white py-4 rounded-xl text-base font-medium active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center space-x-3 shadow-lg"
+              >
+                <span className="text-xl">🎤</span>
+                <span>Start Voice Check-in</span>
+                <div className="w-3 h-3 bg-white/30 rounded-full animate-pulse"></div>
+              </button>
+            ) : (
+              <div className="text-center space-y-3">
+                <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-pink-500 rounded-full mx-auto flex items-center justify-center animate-pulse shadow-lg">
+                  <span className="text-white text-2xl">🎤</span>
+                </div>
+                <button
+                  onClick={stopVoiceCheckin}
+                  className="bg-red-500 text-white px-6 py-3 rounded-xl font-medium active:scale-95 transition-all shadow-md"
+                >
+                  Stop Recording
+                </button>
+                {transcript && (
+                  <div className="bg-white/80 backdrop-blur-sm p-3 rounded-xl text-sm text-gray-700 border">
+                    &quot;{transcript}&quot;
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {/* Text fallback option */}
+            <button
+              onClick={() => setShowVoiceMode(true)}
+              className="w-full text-purple-600 hover:text-purple-800 text-sm font-medium py-2 border border-purple-200 rounded-lg hover:bg-purple-50 active:scale-95 transition-all"
+            >
+              Or type your message instead
+            </button>
+          </div>
+        ) : (
+          /* Text mode (fallback) */
           <div className="space-y-3">
-            {/* Main text input */}
             <div className="flex space-x-2">
               <input
                 type="text"
@@ -149,74 +180,61 @@ export default function VoiceCheckin({ onComplete, isMinimized = false }: VoiceC
                 onChange={(e) => setTextInput(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleTextSubmit()}
                 placeholder="I feel amazing after my workout!"
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 disabled={isAnalyzing}
+                autoFocus
               />
               <button
                 onClick={() => handleTextSubmit()}
                 disabled={!textInput.trim() || isAnalyzing}
-                className="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium active:scale-95 transition-all disabled:opacity-50"
+                className="bg-purple-500 text-white px-5 py-3 rounded-xl font-medium active:scale-95 transition-all disabled:opacity-50 shadow-md"
               >
-                {isAnalyzing ? '⚡' : 'Analyze'}
+                {isAnalyzing ? '⚡' : 'Send'}
               </button>
             </div>
             
-            {/* Quick suggestion buttons */}
-            <div className="flex flex-wrap gap-1">
+            {/* Quick suggestions */}
+            <div className="flex flex-wrap gap-2">
               {demoSuggestions.slice(0, 2).map((suggestion, index) => (
                 <button
                   key={index}
                   onClick={() => handleTextSubmit(suggestion)}
                   disabled={isAnalyzing}
-                  className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full hover:bg-gray-200 active:scale-95 transition-all disabled:opacity-50"
+                  className="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full hover:bg-purple-200 active:scale-95 transition-all disabled:opacity-50"
                 >
-                  {suggestion.length > 25 ? suggestion.substring(0, 25) + '...' : suggestion}
+                  {suggestion.length > 30 ? suggestion.substring(0, 30) + '...' : suggestion}
                 </button>
               ))}
             </div>
-          </div>
-        ) : (
-          /* Voice mode (secondary) */
-          <div className="space-y-3">
-            {!isRecording ? (
-              <button
-                onClick={startVoiceCheckin}
-                disabled={isAnalyzing}
-                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-2 rounded-lg text-sm font-medium active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center space-x-2"
-              >
-                <span>🎤</span>
-                <span>Start Voice Check-in</span>
-              </button>
-            ) : (
-              <div className="text-center">
-                <div className="w-8 h-8 bg-red-500 rounded-full mx-auto mb-2 animate-pulse flex items-center justify-center">
-                  <span className="text-white text-sm">🎤</span>
-                </div>
-                <button
-                  onClick={stopVoiceCheckin}
-                  className="bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-medium active:scale-95 transition-all"
-                >
-                  Stop Recording
-                </button>
-                {transcript && (
-                  <div className="mt-2 bg-gray-100 p-2 rounded-lg text-xs text-gray-700">
-                    &quot;{transcript}&quot;
-                  </div>
-                )}
-              </div>
-            )}
+            
+            <button
+              onClick={() => setShowVoiceMode(false)}
+              className="w-full text-purple-600 hover:text-purple-800 text-sm font-medium py-1"
+            >
+              ← Back to voice input
+            </button>
           </div>
         )}
         
-        {/* Results display */}
-        {lastResult && !isAnalyzing && (
-          <div className="mt-3 text-xs text-center bg-green-50 p-2 rounded-lg border border-green-200">
-            <div className="flex items-center justify-center space-x-3">
-              <span>Mood: <strong className="text-green-700 capitalize">{lastResult.mood}</strong></span>
-              <span>•</span>
-              <span>Energy: <strong className="text-blue-700">{lastResult.energy}/10</strong></span>
-              <span>•</span>
-              <span>Stress: <strong className="text-orange-700">{lastResult.stress}/10</strong></span>
+        {/* Enhanced results display */}
+        {lastResult && !isAnalyzing && !isRecording && (
+          <div className="mt-4 bg-gradient-to-r from-green-50 to-blue-50 p-3 rounded-xl border border-green-200">
+            <div className="text-center">
+              <div className="text-sm font-medium text-gray-800 mb-2">Analysis Complete!</div>
+              <div className="flex items-center justify-center space-x-4 text-xs">
+                <span className="flex items-center space-x-1">
+                  <span>😊</span>
+                  <span className="font-medium capitalize">{lastResult.mood}</span>
+                </span>
+                <span className="flex items-center space-x-1">
+                  <span>⚡</span>
+                  <span className="font-medium">{lastResult.energy}/10</span>
+                </span>
+                <span className="flex items-center space-x-1">
+                  <span>😌</span>
+                  <span className="font-medium">{lastResult.stress}/10</span>
+                </span>
+              </div>
             </div>
           </div>
         )}
