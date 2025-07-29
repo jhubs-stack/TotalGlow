@@ -75,7 +75,7 @@ export default function MindPage() {
                     <span className="text-white text-xl">🧘‍♀️</span>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-800">Mindful Meditation</h3>
+                    <h3 className="text-lg font-semibold text-gray-800">Breathing Exercise</h3>
                     <p className="text-gray-600 text-sm">10 minutes of focused breathing</p>
                   </div>
                 </div>
@@ -101,7 +101,7 @@ export default function MindPage() {
                 <div className="text-pink-400 text-2xl">→</div>
               </div>
               <button className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white py-3 rounded-xl font-medium shadow-md active:scale-95 transition-transform">
-                Start Writing
+                Start Recording
               </button>
             </div>
 
@@ -135,7 +135,7 @@ export default function MindPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="text-center">
                 <div className="text-2xl font-bold text-purple-600 mb-1">5/7</div>
-                <div className="text-sm text-gray-600">Meditation<br/>Sessions</div>
+                <div className="text-sm text-gray-600">Breathing<br/>Sessions</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-green-600 mb-1">Low</div>

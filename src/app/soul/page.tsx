@@ -71,7 +71,7 @@ export default function SoulPage() {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-4">
                   <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
-                    <span className="text-xl">🙏</span>
+                    <span className="text-xl">💖</span>
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-800">Gratitude Practice</h3>
@@ -90,11 +90,11 @@ export default function SoulPage() {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-4">
                   <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
-                    <span className="text-xl">💖</span>
+                    <span className="text-xl">🙏</span>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-800">Compassion Med</h3>
-                    <p className="text-gray-600 text-sm">Send loving energy to others</p>
+                    <h3 className="text-lg font-semibold text-gray-800">Meditation</h3>
+                    <p className="text-gray-600 text-sm">Focus on your breath for 10 minutes</p>
                   </div>
                 </div>
                 <div className="text-amber-400 text-2xl">→</div>
