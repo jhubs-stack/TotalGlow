@@ -150,6 +150,71 @@ export default function Home() {
           )}
         </div>
 
+        {/* OVERALL WELLNESS SCORE - TOP PRIORITY */}
+        {mounted && (
+          <div className="relative bg-gradient-to-br from-purple-500 via-blue-500 to-cyan-500 rounded-3xl p-8 mb-8 shadow-2xl border border-white/30 overflow-hidden">
+            {/* Background Pattern */}
+            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-16 translate-x-16"></div>
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12"></div>
+            
+            {/* Content */}
+            <div className="relative z-10">
+              <div className="text-center mb-6">
+                <h3 className="text-2xl font-bold text-white mb-2">Overall Wellness</h3>
+                <div className="flex items-center justify-center space-x-2 text-white/90">
+                  <span className="text-sm font-medium">7 day streak</span>
+                  <span className="text-lg animate-pulse">🔥</span>
+                </div>
+              </div>
+              
+              <div className="flex items-center justify-center mb-6">
+                <div className="relative">
+                  <ProgressRing progress={overallScore} color="#ffffff" size={120} />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="text-5xl font-bold text-white drop-shadow-lg">
+                        {overallScore}
+                      </div>
+                      <div className="text-sm text-white/80 font-medium">/ 100</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="text-center">
+                <p className="text-white/90 text-sm font-medium mb-2">
+                  {overallScore >= 80 ? "🌟 Excellent Balance!" : 
+                   overallScore >= 70 ? "✨ Great Progress!" : 
+                   overallScore >= 60 ? "💪 Keep Growing!" : 
+                   "🌱 Your Journey Begins"}
+                </p>
+                <div className="flex justify-center space-x-6 text-xs text-white/80">
+                  <div className="flex items-center space-x-1">
+                    <span>🧠</span>
+                    <span>{scores.mind}</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <span>💪</span>
+                    <span>{scores.body}</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <span>✨</span>
+                    <span>{scores.soul}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* CROSS-PILLAR INSIGHTS - SECOND PRIORITY */}
+        {mounted && insightsReady && wellnessState && (
+          <div className="mb-8">
+            <CrossPillarInsights wellnessState={wellnessState} />
+          </div>
+        )}
+
         {/* ENHANCED THREE PILLARS - Only render when mounted */}
         {mounted && (
           <div className="space-y-6 mb-8">
@@ -262,37 +327,6 @@ export default function Home() {
                 </div>
               </div>
             </Link>
-          </div>
-        )}
-
-        {/* CROSS-PILLAR INSIGHTS - Prime placement after pillars */}
-        {mounted && insightsReady && wellnessState && (
-          <div className="mb-8">
-            <CrossPillarInsights wellnessState={wellnessState} />
-          </div>
-        )}
-
-        {/* COMPACT OVERALL SCORE - Summary format */}
-        {mounted && (
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-5 mb-6 shadow-lg border border-white/50">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-800">Overall Wellness</h3>
-                <p className="text-gray-600 flex items-center text-sm">
-                  <span className="mr-2">7 day streak</span>
-                  <span className="text-orange-500">🔥</span>
-                </p>
-              </div>
-              <div className="flex items-center space-x-4">
-                <div className="text-right">
-                  <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                    {overallScore}
-                  </div>
-                  <div className="text-xs text-gray-500">/ 100</div>
-                </div>
-                <ProgressRing progress={overallScore} color="#8b5cf6" size={60} />
-              </div>
-            </div>
           </div>
         )}
 
